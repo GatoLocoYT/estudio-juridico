@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Acceso | Panel Abogados</title>
+  <link rel="stylesheet" href="/assets/app.css" />
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="border-b border-slate-200 bg-white sticky top-0 z-40">
+    <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-4">
+
+      <a href="/" class="flex items-center gap-3 hover:opacity-90 transition">
+        <div class="h-9 w-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center">
+          <span class="text-amber-700 font-semibold">JL</span>
+        </div>
+        <div class="leading-tight">
+          <div class="font-semibold text-slate-900">Justicia &amp; Ley</div>
+          <div class="text-xs text-slate-500">Estudio Jurídico</div>
+        </div>
+      </a>
+
+      <a href="/"
+        class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        ← Volver al sitio
+      </a>
+
+    </div>
+  </header>
+
+  <!-- Login container -->
+  <main class="flex-1 flex items-center justify-center px-4">
+    <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-sm p-7">
+
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center">
+          <span class="text-amber-700 font-semibold">JL</span>
+        </div>
+        <div>
+          <div class="font-semibold text-slate-900">Panel de Abogados</div>
+          <div class="text-sm text-slate-500">Acceso seguro</div>
+        </div>
+      </div>
+
+      <form id="loginForm" class="mt-6 space-y-4">
+        <div>
+          <label class="text-xs text-slate-600">Email</label>
+          <input title="email" name="email" type="email" required
+            class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+            focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-600">Contraseña</label>
+          <input title="password" name="password" type="password" required
+            class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+            focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+        </div>
+
+        <button type="submit"
+          class="w-full rounded-xl bg-blue-700 px-4 py-3 text-white font-semibold hover:bg-blue-600 transition">
+          Ingresar
+        </button>
+
+        <p id="msg" class="text-sm text-slate-600"></p>
+      </form>
+
+      <div class="mt-6 text-xs text-slate-500 text-center">
+        © <span id="year"></span> Justicia &amp; Ley
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("msg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "Ingresando...";
+
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        msg.textContent = (json && (json.error || json.message)) || "Error al ingresar.";
+        return;
+      }
+
+      msg.textContent = "Usuario autenticado. Redirigiendo...";
+      setTimeout(() => window.location.href = "/admin/index.html", 700);
+    });
+  </script>
+
+</body>
+
+</html>
