@@ -1,370 +1,423 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Panel | Consultas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin · Estudio Jurídico</title>
+
+  <!-- Ajustá la ruta al CSS generado por Tailwind -->
   <link rel="stylesheet" href="/assets/app.css" />
+
+  <meta name="color-scheme" content="light" />
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
-  <!-- Top bar -->
-  <header class="border-b border-slate-200 bg-white sticky top-0 z-40">
-    <div class="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between gap-4">
+<body class="bg-slate-50 text-slate-900">
+  <!-- Topbar -->
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/85 backdrop-blur">
+    <div class="mx-auto flex max-w-[1200px] items-center justify-between gap-3 px-4 py-3">
       <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center">
-          <span class="text-amber-700 font-semibold">JL</span>
-        </div>
-        <div class="leading-tight">
-          <div class="font-semibold text-slate-900">Panel de Abogados</div>
-          <div class="text-sm text-slate-500">Consultas</div>
-        </div>
+        <a href="/" class="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-slate-100">
+          <div class="h-9 w-9 rounded-xl bg-slate-900 text-white grid place-items-center font-semibold">EJ</div>
+          <div class="leading-tight">
+            <div class="text-sm font-semibold">Panel de Administración</div>
+            <div class="text-xs text-slate-500">CRM · Agenda · Documentos</div>
+          </div>
+        </a>
       </div>
 
-      <div class="flex items-center gap-3">
-        <div class="hidden sm:flex flex-col text-right leading-tight">
-          <div id="whoName" class="text-sm font-semibold text-slate-900">—</div>
-          <div id="whoRole" class="text-xs text-slate-500">—</div>
+      <div class="flex items-center gap-2">
+        <div class="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+          <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
+          <span class="text-xs text-slate-600">Sesión activa</span>
+          <span class="text-xs font-medium text-slate-900" id="adminEmail">admin@estudio.com</span>
         </div>
 
-        <button id="btnLogout"
-          class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        <button
+          id="btnLogout"
+          class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 active:scale-[0.99]"
+        >
           Cerrar sesión
         </button>
       </div>
     </div>
   </header>
 
-  <main class="mx-auto max-w-7xl px-4 py-6">
-    <!-- Breadcrumb / status -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-      <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Consultas recibidas</h1>
-        <p class="text-sm text-slate-500">Listado operativo. Seleccioná una consulta para ver el detalle.</p>
+  <!-- Layout -->
+  <main class="mx-auto grid max-w-[1200px] grid-cols-1 gap-4 px-4 py-4 lg:grid-cols-[280px_1fr]">
+    <!-- Sidebar -->
+    <aside class="rounded-2xl border border-slate-200 bg-white p-3">
+      <div class="mb-3">
+        <div class="text-xs font-semibold text-slate-500">NAVEGACIÓN</div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <div id="pillCount"
-          class="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">
-          —
+      <nav class="space-y-1">
+        <button data-view="dashboard" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100 bg-slate-100">
+          Dashboard
+        </button>
+        <button data-view="appointments" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+          Agenda (Turnos)
+        </button>
+        <button data-view="clients" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+          Clientes
+        </button>
+        <button data-view="cases" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+          Casos
+        </button>
+        <button data-view="documents" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+          Documentos
+        </button>
+        <button data-view="lawyers" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+          Abogados
+        </button>
+      </nav>
+
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+        <div class="text-xs font-semibold text-slate-600">Estado del sistema</div>
+        <div class="mt-2 space-y-2 text-xs text-slate-600">
+          <div class="flex items-center justify-between">
+            <span>API</span>
+            <span class="font-medium" id="apiStatus">—</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Base de datos</span>
+            <span class="font-medium" id="dbStatus">—</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Última actividad</span>
+            <span class="font-medium" id="lastActivity">—</span>
+          </div>
         </div>
-        <div id="pillUpdated"
-          class="rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-          —
+        <button id="btnHealth" class="mt-3 w-full rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 active:scale-[0.99]">
+          Probar conexión
+        </button>
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <section class="space-y-4">
+      <!-- Page header -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 class="text-lg font-semibold" id="viewTitle">Dashboard</h1>
+            <p class="text-sm text-slate-600" id="viewSubtitle">Resumen general del estudio</p>
+          </div>
+
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div class="relative">
+              <input
+                id="searchInput"
+                type="text"
+                placeholder="Buscar (nombre, email, teléfono, título, etc.)"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 pr-10 text-sm outline-none ring-slate-200 focus:ring-2 sm:w-[360px]"
+              />
+              <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">⌕</span>
+            </div>
+
+            <select title="Filtro"
+              id="filterSelect"
+              class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2"
+            >
+              <option value="">Filtro rápido</option>
+              <option value="status:active">Status: active</option>
+              <option value="status:inactive">Status: inactive</option>
+              <option value="priority:high">Priority: high</option>
+              <option value="priority:medium">Priority: medium</option>
+              <option value="priority:low">Priority: low</option>
+            </select>
+
+            <button
+              id="btnNew"
+              class="rounded-xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500 active:scale-[0.99]"
+            >
+              + Nuevo
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI row -->
+        <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" id="kpis">
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div class="text-xs font-semibold text-slate-500">Clientes</div>
+            <div class="mt-1 text-2xl font-semibold" id="kpiClients">—</div>
+            <div class="mt-1 text-xs text-slate-600">Activos</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div class="text-xs font-semibold text-slate-500">Casos</div>
+            <div class="mt-1 text-2xl font-semibold" id="kpiCases">—</div>
+            <div class="mt-1 text-xs text-slate-600">En curso</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div class="text-xs font-semibold text-slate-500">Turnos</div>
+            <div class="mt-1 text-2xl font-semibold" id="kpiAppointments">—</div>
+            <div class="mt-1 text-xs text-slate-600">Próximos 7 días</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div class="text-xs font-semibold text-slate-500">Documentos</div>
+            <div class="mt-1 text-2xl font-semibold" id="kpiDocuments">—</div>
+            <div class="mt-1 text-xs text-slate-600">Total</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Filters -->
-    <section class="mt-6 rounded-3xl border border-slate-200 bg-white shadow-sm p-5">
-      <div class="grid md:grid-cols-4 gap-4">
-        <div>
-          <label class="text-xs text-slate-600">Buscar</label>
-          <input id="q"
-            class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            placeholder="Nombre, email, área..." />
+      <!-- Main card -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <!-- Toolbar for tables -->
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div class="flex items-center gap-2">
+            <div class="text-sm font-semibold" id="tableTitle">Actividad reciente</div>
+            <span class="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600" id="tableCount">—</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select title="Orden" id="sortSelect" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2">
+              <option value="created_at:desc">Orden: más nuevo</option>
+              <option value="created_at:asc">Orden: más viejo</option>
+              <option value="full_name:asc">Nombre A–Z</option>
+              <option value="full_name:desc">Nombre Z–A</option>
+              <option value="start_at:asc">Turno: más cercano</option>
+              <option value="start_at:desc">Turno: más lejano</option>
+            </select>
+
+            <button id="btnRefresh" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 active:scale-[0.99]">
+              Actualizar
+            </button>
+          </div>
         </div>
 
-        <div>
-          <label class="text-xs text-slate-600">Estado</label>
-          <select title="estado" id="status"
-            class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-            <option value="">Todos</option>
-            <option value="new">Nueva</option>
-            <option value="review">En revisión</option>
-            <option value="answered">Respondida</option>
-            <option value="closed">Cerrada</option>
-          </select>
+        <!-- Loader -->
+        <div id="loader" class="mt-4 hidden rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+          Cargando…
         </div>
 
-        <div>
-          <label class="text-xs text-slate-600">Urgencia</label>
-          <select title="urgencia" id="urgency"
-            class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-            <option value="">Todas</option>
-            <option value="high">Alta</option>
-            <option value="medium">Media</option>
-            <option value="low">Baja</option>
-          </select>
-        </div>
-
-        <div class="flex items-end gap-2">
-          <button id="btnRefresh"
-            class="w-full rounded-xl bg-blue-700 px-4 py-2 text-white font-semibold hover:bg-blue-600 transition">
-            Actualizar
+        <!-- Empty state -->
+        <div id="emptyState" class="mt-4 hidden rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
+          <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-600">📄</div>
+          <div class="mt-3 text-sm font-semibold">Sin resultados</div>
+          <div class="mt-1 text-sm text-slate-600">Probá con otro filtro o agregá un nuevo registro.</div>
+          <button id="btnEmptyNew" class="mt-4 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+            + Crear
           </button>
-          <button id="btnClear"
-            class="rounded-xl border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 hover:bg-slate-100">
-            Limpiar
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <section class="mt-6 grid lg:grid-cols-3 gap-6 items-start">
-      <!-- Table -->
-      <div class="lg:col-span-2 rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-          <div class="font-semibold text-slate-900">Listado</div>
-          <div id="tableMsg" class="text-sm text-slate-500"></div>
         </div>
 
-        <div class="overflow-auto">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-50 border-b border-slate-200">
-              <tr class="text-left text-slate-600">
-                <th class="px-5 py-3 font-semibold">Cliente</th>
-                <th class="px-5 py-3 font-semibold">Área</th>
-                <th class="px-5 py-3 font-semibold">Estado</th>
-                <th class="px-5 py-3 font-semibold">Urgencia</th>
-                <th class="px-5 py-3 font-semibold">Fecha</th>
+        <!-- Table -->
+        <div class="mt-4 overflow-auto rounded-2xl border border-slate-200">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-slate-50 text-xs text-slate-600">
+              <tr id="tableHead">
+                <th class="px-4 py-3 font-semibold">Campo</th>
+                <th class="px-4 py-3 font-semibold">Detalle</th>
+                <th class="px-4 py-3 font-semibold">Estado</th>
+                <th class="px-4 py-3 font-semibold">Actualizado</th>
+                <th class="px-4 py-3 font-semibold text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody id="rows" class="divide-y divide-slate-200"></tbody>
+            <tbody id="tableBody" class="divide-y divide-slate-200 bg-white">
+              <!-- rows injected by JS -->
+            </tbody>
           </table>
         </div>
+
+        <!-- Pagination -->
+        <div class="mt-4 flex items-center justify-between gap-2">
+          <div class="text-xs text-slate-600" id="pageInfo">—</div>
+          <div class="flex items-center gap-2">
+            <button id="btnPrev" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-50" disabled>
+              ← Anterior
+            </button>
+            <button id="btnNext" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-50" disabled>
+              Siguiente →
+            </button>
+          </div>
+        </div>
       </div>
-
-      <!-- Detail -->
-      <aside class="rounded-3xl border border-slate-200 bg-white shadow-sm p-5">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <div class="text-xs text-slate-500">Detalle</div>
-            <div id="dTitle" class="text-lg font-semibold text-slate-900">Seleccioná una consulta</div>
-          </div>
-          <div id="dBadges" class="flex flex-wrap justify-end gap-2"></div>
-        </div>
-
-        <div id="dBody" class="mt-4 text-sm text-slate-600">
-          Para ver información, hacé clic en una fila del listado.
-        </div>
-
-        <div class="mt-6 border-t border-slate-200 pt-4">
-          <div class="text-xs text-slate-500">Acciones (próximo paso)</div>
-          <div class="mt-2 text-sm text-slate-600">
-            En V1: ver detalle. Luego agregamos cambiar estado, asignar y notas.
-          </div>
-        </div>
-      </aside>
     </section>
   </main>
 
-  <script>
-    // ===== Utils =====
-    const $ = (sel, root = document) => root.querySelector(sel);
-
-    function esc(s) {
-      return String(s ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function fmtDate(iso) {
-      if (!iso) return "—";
-      try {
-        const d = new Date(iso);
-        return d.toLocaleString("es-AR", { dateStyle: "short", timeStyle: "short" });
-      } catch { return iso; }
-    }
-
-    function pill(text, kind) {
-      const base = "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border";
-      const map = {
-        blue:   "bg-blue-50 border-blue-100 text-blue-700",
-        green:  "bg-green-50 border-green-100 text-green-700",
-        amber:  "bg-amber-50 border-amber-100 text-amber-700",
-        red:    "bg-red-50 border-red-100 text-red-700",
-        slate:  "bg-slate-100 border-slate-200 text-slate-700",
-      };
-      return `<span class="${base} ${map[kind] || map.slate}">${esc(text)}</span>`;
-    }
-
-    function mapStatus(s) {
-      if (s === "new") return { label: "Nueva", kind: "blue" };
-      if (s === "review") return { label: "En revisión", kind: "amber" };
-      if (s === "answered") return { label: "Respondida", kind: "green" };
-      if (s === "closed") return { label: "Cerrada", kind: "slate" };
-      return { label: s || "—", kind: "slate" };
-    }
-
-    function mapUrgency(u) {
-      if (u === "high") return { label: "Alta", kind: "red" };
-      if (u === "medium") return { label: "Media", kind: "amber" };
-      if (u === "low") return { label: "Baja", kind: "green" };
-      return { label: u || "—", kind: "slate" };
-    }
-
-    async function api(url, opts) {
-      const res = await fetch(url, opts);
-      const json = await res.json().catch(() => null);
-      if (!res.ok) {
-        const msg = (json && (json.error || json.message)) || `HTTP ${res.status}`;
-        const err = new Error(msg);
-        err.status = res.status;
-        throw err;
-      }
-      return json;
-    }
-
-    // ===== Auth gate =====
-    async function ensureAuth() {
-      try {
-        const me = await api("/api/admin/me");
-        $("#whoName").textContent = me.user.full_name;
-        $("#whoRole").textContent = me.user.role;
-      } catch (_) {
-        window.location.href = "/admin/login.html";
-      }
-    }
-
-    // ===== Data =====
-    let all = [];
-    let filtered = [];
-    let selectedId = null;
-
-    function applyFilters() {
-      const q = $("#q").value.trim().toLowerCase();
-      const status = $("#status").value;
-      const urgency = $("#urgency").value;
-
-      filtered = all.filter((c) => {
-        const hay = `${c.full_name} ${c.email} ${c.area} ${c.status} ${c.urgency}`.toLowerCase();
-        if (q && !hay.includes(q)) return false;
-        if (status && c.status !== status) return false;
-        if (urgency && c.urgency !== urgency) return false;
-        return true;
-      });
-
-      $("#pillCount").textContent = `${filtered.length} consultas`;
-      renderRows();
-      if (selectedId) renderDetail(selectedId);
-    }
-
-    function renderRows() {
-      const tbody = $("#rows");
-      if (!filtered.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="px-5 py-10 text-center text-slate-500">
-              No hay resultados con los filtros actuales.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      tbody.innerHTML = filtered.map((c) => {
-        const st = mapStatus(c.status);
-        const ur = mapUrgency(c.urgency);
-        const active = c.id === selectedId ? "bg-blue-50/60" : "hover:bg-slate-50";
-        return `
-          <tr class="cursor-pointer ${active}" data-id="${c.id}">
-            <td class="px-5 py-3">
-              <div class="font-semibold text-slate-900">${esc(c.full_name)}</div>
-              <div class="text-xs text-slate-500">${esc(c.email)}${c.phone ? " · " + esc(c.phone) : ""}</div>
-            </td>
-            <td class="px-5 py-3 text-slate-700">${esc(c.area)}</td>
-            <td class="px-5 py-3">${pill(st.label, st.kind)}</td>
-            <td class="px-5 py-3">${pill(ur.label, ur.kind)}</td>
-            <td class="px-5 py-3 text-slate-600">${fmtDate(c.created_at)}</td>
-          </tr>
-        `;
-      }).join("");
-
-      // bind click
-      tbody.querySelectorAll("tr[data-id]").forEach((tr) => {
-        tr.addEventListener("click", () => {
-          selectedId = Number(tr.getAttribute("data-id"));
-          renderRows();
-          renderDetail(selectedId);
-        });
-      });
-    }
-
-    function renderDetail(id) {
-      const c = all.find(x => x.id === id);
-      if (!c) return;
-
-      $("#dTitle").textContent = c.full_name || "Detalle";
-
-      const st = mapStatus(c.status);
-      const ur = mapUrgency(c.urgency);
-      $("#dBadges").innerHTML = `
-        ${pill(st.label, st.kind)}
-        ${pill(ur.label, ur.kind)}
-      `;
-
-      const assigned = c.assigned_name ? esc(c.assigned_name) : "Sin asignar";
-
-      $("#dBody").innerHTML = `
-        <div class="space-y-3">
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="absolute inset-0 grid place-items-center p-4">
+      <div class="w-full max-w-[720px] rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
           <div>
-            <div class="text-xs text-slate-500">Email</div>
-            <div class="text-sm text-slate-800 font-semibold">${esc(c.email)}</div>
+            <div class="text-sm font-semibold" id="modalTitle">Nuevo</div>
+            <div class="text-xs text-slate-600" id="modalSubtitle">Completar los campos</div>
           </div>
-          <div>
-            <div class="text-xs text-slate-500">Teléfono</div>
-            <div class="text-sm text-slate-800 font-semibold">${c.phone ? esc(c.phone) : "—"}</div>
-          </div>
-          <div>
-            <div class="text-xs text-slate-500">Área</div>
-            <div class="text-sm text-slate-800 font-semibold">${esc(c.area)}</div>
-          </div>
-          <div>
-            <div class="text-xs text-slate-500">Asignado a</div>
-            <div class="text-sm text-slate-800 font-semibold">${assigned}</div>
-          </div>
-          <div>
-            <div class="text-xs text-slate-500">Fecha</div>
-            <div class="text-sm text-slate-800 font-semibold">${fmtDate(c.created_at)}</div>
-          </div>
-          <div class="pt-2 border-t border-slate-200">
-            <div class="text-xs text-slate-500">Mensaje</div>
-            <div class="mt-1 whitespace-pre-wrap text-sm text-slate-800 leading-relaxed">${esc(c.message || "—")}</div>
-          </div>
+          <button id="btnModalClose" class="rounded-xl px-3 py-2 text-sm font-medium hover:bg-slate-100">Cerrar</button>
         </div>
-      `;
+
+        <form id="modalForm" class="p-4">
+          <div id="modalFields" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <!-- injected by JS -->
+          </div>
+
+          <div class="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <button id="btnModalDelete" type="button" class="hidden rounded-xl border border-rose-200 bg-white px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50">
+              Eliminar
+            </button>
+
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
+              <button type="button" id="btnModalCancel" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100">
+                Cancelar
+              </button>
+              <button type="submit" id="btnModalSave" class="rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                Guardar
+              </button>
+            </div>
+          </div>
+
+          <div id="modalError" class="mt-3 hidden rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toasts" class="fixed bottom-4 right-4 z-[60] space-y-2"></div>
+
+  <script>
+    // === Mini UI helpers (sin acoplarse a tu lógica de API) ===
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function setActiveNav(view) {
+      $$(".nav-btn").forEach(btn => {
+        btn.classList.toggle("bg-slate-100", btn.dataset.view === view);
+      });
     }
 
-    async function loadData() {
-      $("#tableMsg").textContent = "Cargando...";
-      const data = await api("/api/admin/consultations");
-      all = data.consultations || [];
-      $("#pillUpdated").textContent = `Actualizado: ${new Date().toLocaleTimeString("es-AR")}`;
-      $("#tableMsg").textContent = "";
-      applyFilters();
+    function toast(message, type = "info") {
+      const wrap = $("#toasts");
+      const el = document.createElement("div");
+      const base = "rounded-xl border px-3 py-2 text-sm shadow bg-white";
+      const color =
+        type === "success" ? "border-emerald-200" :
+        type === "error" ? "border-rose-200" :
+        "border-slate-200";
+      el.className = `${base} ${color}`;
+      el.textContent = message;
+      wrap.appendChild(el);
+      setTimeout(() => el.remove(), 2600);
     }
 
-    // ===== Events =====
-    $("#q").addEventListener("input", () => applyFilters());
-    $("#status").addEventListener("change", () => applyFilters());
-    $("#urgency").addEventListener("change", () => applyFilters());
+    function showLoader(show) {
+      $("#loader").classList.toggle("hidden", !show);
+    }
 
-    $("#btnClear").addEventListener("click", () => {
-      $("#q").value = "";
-      $("#status").value = "";
-      $("#urgency").value = "";
-      applyFilters();
+    function showEmpty(show) {
+      $("#emptyState").classList.toggle("hidden", !show);
+    }
+
+    function openModal({ title = "Nuevo", subtitle = "", fieldsHtml = "", showDelete = false } = {}) {
+      $("#modalTitle").textContent = title;
+      $("#modalSubtitle").textContent = subtitle;
+      $("#modalFields").innerHTML = fieldsHtml;
+      $("#modalError").classList.add("hidden");
+      $("#btnModalDelete").classList.toggle("hidden", !showDelete);
+      $("#modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      $("#modal").classList.add("hidden");
+    }
+
+    // events
+    $("#btnModalClose").addEventListener("click", closeModal);
+    $("#btnModalCancel").addEventListener("click", closeModal);
+    $("#modal").addEventListener("click", (e) => {
+      if (e.target === $("#modal").firstElementChild) closeModal();
     });
 
-    $("#btnRefresh").addEventListener("click", () => loadData());
+    $$(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+        setActiveNav(view);
+        // Acá tu main.js debería escuchar cambios de view:
+        window.dispatchEvent(new CustomEvent("admin:view", { detail: { view } }));
+      });
+    });
+
+    $("#btnNew").addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("admin:new"));
+    });
+
+    $("#btnEmptyNew").addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("admin:new"));
+    });
+
+    $("#btnRefresh").addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("admin:refresh"));
+    });
+
+    $("#btnHealth").addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("admin:health"));
+    });
+
+    $("#searchInput").addEventListener("input", (e) => {
+      window.dispatchEvent(new CustomEvent("admin:search", { detail: { q: e.target.value } }));
+    });
+
+    $("#filterSelect").addEventListener("change", (e) => {
+      window.dispatchEvent(new CustomEvent("admin:filter", { detail: { filter: e.target.value } }));
+    });
+
+    $("#sortSelect").addEventListener("change", (e) => {
+      window.dispatchEvent(new CustomEvent("admin:sort", { detail: { sort: e.target.value } }));
+    });
+
+    $("#btnPrev").addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("admin:page", { detail: { dir: -1 } }));
+    });
+
+    $("#btnNext").addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("admin:page", { detail: { dir: 1 } }));
+    });
 
     $("#btnLogout").addEventListener("click", async () => {
-      try {
-        await api("/api/admin/logout", { method: "POST" });
-      } finally {
-        window.location.href = "/admin/login.html";
-      }
+      window.dispatchEvent(new CustomEvent("admin:logout"));
     });
 
-    // ===== Boot =====
-    (async () => {
-      await ensureAuth();
-      await loadData();
-    })();
+    // Exponemos helpers para tu main.js
+    window.AdminUI = {
+      toast,
+      showLoader,
+      showEmpty,
+      openModal,
+      closeModal,
+      setHeader(title, subtitle) {
+        $("#viewTitle").textContent = title;
+        $("#viewSubtitle").textContent = subtitle || "";
+      },
+      setKpis({ clients, cases, appointments, documents }) {
+        if (clients != null) $("#kpiClients").textContent = String(clients);
+        if (cases != null) $("#kpiCases").textContent = String(cases);
+        if (appointments != null) $("#kpiAppointments").textContent = String(appointments);
+        if (documents != null) $("#kpiDocuments").textContent = String(documents);
+      },
+      setSystemStatus({ api, db, last }) {
+        if (api != null) $("#apiStatus").textContent = api;
+        if (db != null) $("#dbStatus").textContent = db;
+        if (last != null) $("#lastActivity").textContent = last;
+      },
+      setTable({ title, count, headHtml, bodyHtml, pageInfo, canPrev, canNext }) {
+        if (title) $("#tableTitle").textContent = title;
+        if (count != null) $("#tableCount").textContent = String(count);
+        if (headHtml) $("#tableHead").innerHTML = headHtml;
+        if (bodyHtml != null) $("#tableBody").innerHTML = bodyHtml;
+        if (pageInfo != null) $("#pageInfo").textContent = pageInfo;
+        $("#btnPrev").disabled = !canPrev;
+        $("#btnNext").disabled = !canNext;
+      },
+      showLoader,
+      showEmpty,
+    };
+
+    // Default view
+    window.dispatchEvent(new CustomEvent("admin:view", { detail: { view: "dashboard" } }));
   </script>
+
+  <!-- Tu lógica real -->
+  <script src="../js/main.js"></script>
 </body>
 </html>

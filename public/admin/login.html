@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Acceso | Panel Abogados</title>
   <link rel="stylesheet" href="/assets/app.css" />
 </head>
+
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
   <!-- Navbar -->
@@ -47,15 +49,13 @@
       <form id="loginForm" class="mt-6 space-y-4">
         <div>
           <label class="text-xs text-slate-600">Email</label>
-          <input title="email" name="email" type="email" required
-            class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+          <input title="email" name="email" type="email" required class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
             focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
         </div>
 
         <div>
           <label class="text-xs text-slate-600">Contraseña</label>
-          <input title="password" name="password" type="password" required
-            class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+          <input title="password" name="password" type="password" required class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
             focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
         </div>
 
@@ -74,34 +74,45 @@
   </main>
 
   <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-    const form = document.getElementById("loginForm");
-    const msg = document.getElementById("msg");
+  const form = document.getElementById("loginForm");
+  const msg = document.getElementById("msg");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      msg.textContent = "Ingresando...";
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const data = Object.fromEntries(new FormData(form).entries());
+    const email = form.email.value.trim();
+    const password = form.password.value;
 
+    msg.textContent = "Ingresando...";
+    msg.className = "text-sm text-slate-500";
+
+    try {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
       });
 
-      const json = await res.json().catch(() => null);
+      const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
-        msg.textContent = (json && (json.error || json.message)) || "Error al ingresar.";
+      if (!res.ok || !data.ok) {
+        msg.textContent = data.error || "Credenciales inválidas";
+        msg.className = "text-sm text-red-600";
         return;
       }
 
-      msg.textContent = "Usuario autenticado. Redirigiendo...";
-      setTimeout(() => window.location.href = "/admin/index.html", 700);
-    });
-  </script>
+      // Login exitoso
+      window.location.href = "/admin";
+    } catch (err) {
+      msg.textContent = "Error de conexión con el servidor";
+      msg.className = "text-sm text-red-600";
+    }
+  });
+</script>
+
 
 </body>
 

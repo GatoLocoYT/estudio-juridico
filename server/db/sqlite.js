@@ -15,7 +15,7 @@ function getDb() {
   db = new Database(DB_FILE);
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
-
+  db.pragma("busy_timeout = 5000");
   // Aplicar schema (idempotente)
   const schema = fs.readFileSync(SCHEMA_FILE, "utf-8");
   db.exec(schema);

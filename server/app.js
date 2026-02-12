@@ -1,4 +1,4 @@
-require("dotenv").config();
+// require("dotenv").config(); <-- No es necesario con dotenvx
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
@@ -18,6 +18,15 @@ app.use(cookieParser());
 // Carga req.user si hay sesión válida
 app.use(sessionMiddleware);
 
+// Admin
+app.get("/admin/login", (req, res) =>
+  res.sendFile(path.join(__dirname, "../public/admin/login.html"))
+);
+
+app.get("/admin", (req, res) =>
+  res.sendFile(path.join(__dirname, "../public/admin/index.html"))
+);
+
 // Static
 app.use(express.static(path.join(__dirname, "../public")));
 
@@ -25,6 +34,13 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use("/api/admin", adminRoutes);
 
 app.get("/health", (req, res) => res.json({ status: "ok" }));
+
+// routes API
+app.use("/api/lawyers", require("./routes/lawyers"));
+app.use("/api/clients", require("./routes/clients"));
+app.use("/api/cases", require("./routes/cases"));
+app.use("/api/documents", require("./routes/documents"));
+app.use("/api/appointments", require("./routes/appointments"));
 
 // Fallback HTML (sin wildcard "*")
 app.use((req, res, next) => {

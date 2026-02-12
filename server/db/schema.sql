@@ -89,3 +89,138 @@ FOR EACH ROW
 BEGIN
   UPDATE consultations SET updated_at = datetime('now') WHERE id = NEW.id;
 END;
+-- CLIENTS
+CREATE TABLE IF NOT EXISTS clients (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  full_name       TEXT NOT NULL,
+  dni             TEXT,                  -- opcional (si aplica a AR)
+  email           TEXT,
+  phone           TEXT,
+  address         TEXT,
+  notes           TEXT,
+
+  status          TEXT NOT NULL DEFAULT 'active'
+                  CHECK (status IN ('active','inactive','prospect')),
+
+  created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at      TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at      TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_clients_name    ON clients(full_name);
+CREATE INDEX IF NOT EXISTS idx_clients_email   ON clients(email);
+CREATE INDEX IF NOT EXISTS idx_clients_phone   ON clients(phone);
+CREATE INDEX IF NOT EXISTS idx_clients_deleted ON clients(deleted_at);
+
+
+-- CASES
+CREATE TABLE IF NOT EXISTS cases (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id       INTEGER NOT NULL,
+  title           TEXT NOT NULL,               -- “Divorcio contencioso”, etc
+  area            TEXT,                        -- “Familia”, “Laboral”, etc
+  status          TEXT NOT NULL DEFAULT 'open'
+                  CHECK (status IN ('open','pending','closed','archived')),
+  priority        TEXT NOT NULL DEFAULT 'normal'
+                  CHECK (priority IN ('low','normal','high','urgent')),
+
+  description     TEXT,
+  opened_at       TEXT NOT NULL DEFAULT (date('now')),
+  closed_at       TEXT,
+
+  created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at      TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at      TEXT,
+
+  FOREIGN KEY (client_id) REFERENCES clients(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cases_client     ON cases(client_id);
+CREATE INDEX IF NOT EXISTS idx_cases_status     ON cases(status);
+CREATE INDEX IF NOT EXISTS idx_cases_deleted    ON cases(deleted_at);
+
+
+-- DOCUMENTS (metadata + ruta del archivo)
+CREATE TABLE IF NOT EXISTS documents (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  case_id         INTEGER NOT NULL,
+
+  filename        TEXT NOT NULL,     -- nombre original o normalizado
+  storage_path    TEXT NOT NULL,     -- ruta relativa en VPS
+  mime_type       TEXT,
+  size_bytes      INTEGER CHECK (size_bytes IS NULL OR size_bytes >= 0),
+
+  doc_type        TEXT NOT NULL DEFAULT 'other'
+                  CHECK (doc_type IN ('contract','evidence','court_filing','id','power_of_attorney','other')),
+
+  description     TEXT,
+
+  created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at      TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at      TEXT,
+
+  FOREIGN KEY (case_id) REFERENCES cases(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_docs_case        ON documents(case_id);
+CREATE INDEX IF NOT EXISTS idx_docs_type        ON documents(doc_type);
+CREATE INDEX IF NOT EXISTS idx_docs_deleted     ON documents(deleted_at);
+
+
+-- APPOINTMENTS
+CREATE TABLE IF NOT EXISTS appointments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  client_id INTEGER NOT NULL,
+  case_id   INTEGER,
+
+  lawyer_id INTEGER,
+
+  start_at TEXT NOT NULL,
+  end_at   TEXT NOT NULL,
+
+  channel TEXT NOT NULL DEFAULT 'in_person'
+          CHECK (channel IN ('in_person','phone','video')),
+
+  status TEXT NOT NULL DEFAULT 'scheduled'
+          CHECK (status IN ('scheduled','confirmed','cancelled','done','no_show')),
+
+  title TEXT,
+  notes TEXT,
+
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at TEXT,
+
+  FOREIGN KEY (client_id) REFERENCES clients(id),
+  FOREIGN KEY (case_id) REFERENCES cases(id),
+  FOREIGN KEY (lawyer_id) REFERENCES lawyers(id),
+
+  CHECK (end_at > start_at)
+);
+
+
+CREATE INDEX IF NOT EXISTS idx_appt_client   ON appointments(client_id);
+CREATE INDEX IF NOT EXISTS idx_appt_case     ON appointments(case_id);
+CREATE INDEX IF NOT EXISTS idx_appt_start    ON appointments(start_at);
+CREATE INDEX IF NOT EXISTS idx_appt_status   ON appointments(status);
+CREATE INDEX IF NOT EXISTS idx_appt_deleted  ON appointments(deleted_at);
+-- Tabla abogados
+CREATE TABLE IF NOT EXISTS lawyers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  full_name TEXT NOT NULL CHECK(length(full_name) BETWEEN 3 AND 120),
+  email TEXT UNIQUE,
+  specialty TEXT,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','inactive')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at TEXT
+);
+
+
+-- Índices
+CREATE INDEX IF NOT EXISTS idx_appointments_lawyer
+ON appointments(lawyer_id);
+
+CREATE INDEX IF NOT EXISTS idx_appointments_lawyer_start
+ON appointments(lawyer_id, start_at);

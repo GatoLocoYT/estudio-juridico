@@ -4,9 +4,12 @@
   "description": "",
   "main": "postcss.config.js",
   "scripts": {
+    "dev": "dotenvx run -- node server/app.js",
+    "start": "dotenvx run -- node server/app.js",
+    "seed": "dotenvx run -- node server/seed_admin.js",
     "dev:css": "tailwindcss -i ./src/input.css -o ./public/assets/app.css --watch",
-    "build:css": "tailwindcss -i ./src/input.css -o ./public/assets/app.css --minify",
-    "dev": "node server/app.js"
+    "build:css": "tailwindcss -i ./src/input.css -o ./public/assets/app.css",
+    "seed:demo": "node server/db/seed_demo.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +22,7 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "^1.52.0",
     "autoprefixer": "^10.4.24",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19"

@@ -1,137 +1,643 @@
+/* public/js/main.js
+   Admin panel: carga real desde API (SQLite)
+   Requiere que admin/index.html exponga window.AdminUI (helpers UI)
+*/
+
 (() => {
-  "use strict";
-
-  // ===== Helpers =====
-  const $ = (sel, root = document) => root.querySelector(sel);
-
-  function setMsg(el, text, type = "info") {
-    if (!el) return;
-    el.textContent = text || "";
-    // clases "tipo" (opcional, si no existen igual no rompe)
-    el.classList.remove("text-green-700", "text-red-700", "text-slate-600");
-    if (type === "ok") el.classList.add("text-green-700");
-    else if (type === "err") el.classList.add("text-red-700");
-    else el.classList.add("text-slate-600");
+  if (!window.AdminUI) {
+    console.warn("AdminUI no está definido (admin/index.html debe incluir el script inline que lo crea).");
+    return;
   }
 
-  function serializeForm(form) {
-    const fd = new FormData(form);
-    const obj = {};
-    for (const [k, v] of fd.entries()) obj[k] = String(v ?? "").trim();
-    return obj;
+  // =========================
+  // Config
+  // =========================
+  const API = {
+    dashboard: "/api/dashboard", // opcional; si no existe, hacemos fallback
+    clients: "/api/clients",
+    cases: "/api/cases",
+    documents: "/api/documents",
+    appointments: "/api/appointments",
+    lawyers: "/api/lawyers",
+    logout: "/admin/logout", // si tu ruta difiere, cambiá esto
+    me: "/admin/me",         // opcional para mostrar email
+    health: "/health",       // opcional
+  };
+
+  const state = {
+    view: "dashboard",
+    q: "",
+    filter: "",
+    sort: "created_at:desc",
+    page: 1,
+    pageSize: 20,
+  };
+
+  // =========================
+  // Helpers
+  // =========================
+  const $ = (sel) => document.querySelector(sel);
+
+  function normalizeListPayload(json) {
+    // soporta:
+    // 1) { items, total, page, limit }
+    // 2) { data, meta: { total, page, limit } }
+    // 3) Array directo
+    if (Array.isArray(json)) {
+      return { items: json, total: json.length, page: 1, limit: json.length };
+    }
+    if (json && Array.isArray(json.items)) {
+      return {
+        items: json.items,
+        total: Number(json.total ?? json.items.length),
+        page: Number(json.page ?? 1),
+        limit: Number(json.limit ?? json.items.length),
+      };
+    }
+    if (json && Array.isArray(json.data)) {
+      return {
+        items: json.data,
+        total: Number(json.meta?.total ?? json.data.length),
+        page: Number(json.meta?.page ?? 1),
+        limit: Number(json.meta?.limit ?? json.data.length),
+      };
+    }
+    return { items: [], total: 0, page: 1, limit: state.pageSize };
   }
 
-  function normalizePayload(payload) {
-    // Asegura campos esperados por backend (y unifica nombre+apellido si corresponde)
-    const nombre = payload.nombre || "";
-    const apellido = payload.apellido || "";
-
-    // Si el form separa nombre/apellido, unificamos en nombre
-    const fullName = `${nombre} ${apellido}`.trim();
-
-    return {
-      nombre: fullName || nombre,
-      email: payload.email || "",
-      telefono: payload.telefono || "",
-      area: payload.area || "",
-      mensaje: payload.mensaje || "",
-    };
-  }
-
-  async function postConsulta(data, signal) {
-    const res = await fetch("/api/consultas", {
-      method: "POST",
+  async function apiFetch(url, opts = {}) {
+    const res = await fetch(url, {
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-      signal,
+      ...opts,
     });
 
-    // Intentar parsear JSON siempre
-    let json = null;
-    try {
-      json = await res.json();
-    } catch (_) {}
-
-    if (!res.ok) {
-      const msg = (json && (json.error || json.message)) || `Error HTTP ${res.status}`;
-      const err = new Error(msg);
-      err.status = res.status;
-      err.payload = json;
-      throw err;
+    if (res.status === 401 || res.status === 403) {
+      // no autorizado -> login
+      window.location.href = "/admin/login";
+      return null;
     }
 
-    return json || { ok: true };
+    let json = null;
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      json = await res.json().catch(() => null);
+    } else {
+      json = await res.text().catch(() => null);
+    }
+
+    if (!res.ok) {
+      const msg =
+        (json && json.error && (json.error.message || json.error.code)) ||
+        (typeof json === "string" && json) ||
+        `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+
+    return json;
   }
 
-  function attachFormHandler({
-    formId,
-    msgId,
-    submitSelector = 'button[type="submit"]',
-  }) {
-    const form = document.getElementById(formId);
-    const msgEl = document.getElementById(msgId);
-    if (!form) return;
+  function setHeaderByView(view) {
+    const headers = {
+      dashboard: ["Dashboard", "Resumen general del estudio"],
+      appointments: ["Agenda (Turnos)", "Gestión de citas y horarios"],
+      clients: ["Clientes", "Listado y administración de clientes"],
+      cases: ["Casos", "Casos legales y prioridades"],
+      documents: ["Documentos", "Archivos asociados a casos"],
+      lawyers: ["Abogados", "Equipo y especialidades"],
+    };
+    const [t, s] = headers[view] || ["Panel", ""];
+    AdminUI.setHeader(t, s);
+  }
 
-    const btn = form.querySelector(submitSelector);
+  function fmt(v) {
+    if (v === null || v === undefined) return "—";
+    return String(v);
+  }
 
-    let controller = null;
+  function statusPill(status) {
+    const map = {
+      active: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      inactive: "bg-slate-50 text-slate-700 border-slate-200",
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+      open: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      pending: "bg-amber-50 text-amber-700 border-amber-200",
+      closed: "bg-slate-50 text-slate-700 border-slate-200",
 
-      // Cancelar envío anterior si todavía estaba en vuelo
-      if (controller) controller.abort();
-      controller = new AbortController();
+      scheduled: "bg-blue-50 text-blue-700 border-blue-200",
+      confirmed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      cancelled: "bg-rose-50 text-rose-700 border-rose-200",
+      done: "bg-slate-50 text-slate-700 border-slate-200",
 
-      const raw = serializeForm(form);
-      const payload = normalizePayload(raw);
+      low: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      normal: "bg-slate-50 text-slate-700 border-slate-200",
+      high: "bg-amber-50 text-amber-700 border-amber-200",
+      urgent: "bg-rose-50 text-rose-700 border-rose-200",
+    };
+    const cls = map[status] || "bg-slate-50 text-slate-700 border-slate-200";
+    return `<span class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium ${cls}">${fmt(status)}</span>`;
+  }
 
-      // Validación mínima client-side (backend igual valida)
-      if (!payload.nombre || !payload.email || !payload.area || !payload.mensaje) {
-        setMsg(msgEl, "Por favor completá nombre, email, área y mensaje.", "err");
+  function badge(text) {
+    return `<span class="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700">${text}</span>`;
+  }
+
+  function renderTableCommon({ title, count, headHtml, rowsHtml, pageInfo, canPrev, canNext }) {
+    AdminUI.setTable({
+      title,
+      count,
+      headHtml,
+      bodyHtml: rowsHtml,
+      pageInfo: pageInfo || "—",
+      canPrev: !!canPrev,
+      canNext: !!canNext,
+    });
+    AdminUI.showEmpty(!rowsHtml || rowsHtml.trim().length === 0);
+  }
+
+  // =========================
+  // Loaders
+  // =========================
+  async function loadSystemStatus() {
+    try {
+      // si no tenés /health, esto no rompe
+      const res = await apiFetch(API.health);
+      if (res !== null) AdminUI.setSystemStatus({ api: "OK", db: "OK", last: new Date().toLocaleString() });
+    } catch {
+      AdminUI.setSystemStatus({ api: "—", db: "—", last: "—" });
+    }
+  }
+
+  async function loadMe() {
+    try {
+      const me = await apiFetch(API.me);
+      if (!me) return;
+      const email = me.email || me.admin?.email;
+      if (email && $("#adminEmail")) $("#adminEmail").textContent = email;
+    } catch {
+      // opcional
+    }
+  }
+
+  // =========================
+  // Dashboard
+  // =========================
+  async function loadDashboard() {
+    // Intento 1: endpoint dedicado (si existe)
+    try {
+      const dash = await apiFetch(API.dashboard);
+      if (dash) {
+        const k = dash.kpis || {};
+        AdminUI.setKpis({
+          clients: k.clients ?? "—",
+          cases: k.cases ?? "—",
+          appointments: k.appointments ?? "—",
+          documents: k.documents ?? "—",
+        });
+
+        const activity = Array.isArray(dash.recentActivity) ? dash.recentActivity : [];
+        const headHtml = `
+          <th class="px-4 py-3 font-semibold">Tipo</th>
+          <th class="px-4 py-3 font-semibold">Detalle</th>
+          <th class="px-4 py-3 font-semibold">Estado</th>
+          <th class="px-4 py-3 font-semibold">Fecha</th>
+          <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+        `;
+        const rowsHtml = activity
+          .slice(0, 12)
+          .map((x) => {
+            const type = badge(fmt(x.type));
+            const detail = `<div class="font-medium">${fmt(x.title || x.detail)}</div><div class="text-xs text-slate-600">${fmt(x.subtitle || "")}</div>`;
+            const st = statusPill(x.status);
+            const dt = `<span class="text-xs text-slate-600">${fmt(x.at || x.created_at || x.updated_at)}</span>`;
+            const actions = `<div class="flex justify-end gap-2">
+              <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="view" data-type="${fmt(x.type)}" data-id="${fmt(x.id)}">Ver</button>
+            </div>`;
+            return `<tr class="hover:bg-slate-50">
+              <td class="px-4 py-3">${type}</td>
+              <td class="px-4 py-3">${detail}</td>
+              <td class="px-4 py-3">${st}</td>
+              <td class="px-4 py-3">${dt}</td>
+              <td class="px-4 py-3 text-right">${actions}</td>
+            </tr>`;
+          })
+          .join("");
+
+        renderTableCommon({
+          title: "Actividad reciente",
+          count: activity.length,
+          headHtml,
+          rowsHtml,
+          pageInfo: "—",
+          canPrev: false,
+          canNext: false,
+        });
+
         return;
       }
+    } catch {
+      // fallback
+    }
 
-      try {
-        if (btn) {
-          btn.disabled = true;
-          btn.classList.add("opacity-70", "cursor-not-allowed");
-        }
-        setMsg(msgEl, "Enviando...", "info");
+    // Fallback: 4 requests
+    const [clientsRaw, casesRaw, apptsRaw, docsRaw] = await Promise.all([
+      apiFetch(API.clients),
+      apiFetch(API.cases),
+      apiFetch(API.appointments),
+      apiFetch(API.documents),
+    ]);
 
-        const result = await postConsulta(payload, controller.signal);
+    if (!clientsRaw || !casesRaw || !apptsRaw || !docsRaw) return;
 
-        // Si el backend devuelve urgencia, podés mostrarla
-        const urgency = result?.urgency ? ` (Urgencia: ${result.urgency})` : "";
-        setMsg(msgEl, `¡Listo! Recibimos tu consulta. Te contactaremos a la brevedad.${urgency}`, "ok");
+    const clients = normalizeListPayload(clientsRaw);
+    const cases = normalizeListPayload(casesRaw);
+    const appts = normalizeListPayload(apptsRaw);
+    const docs = normalizeListPayload(docsRaw);
 
-        form.reset();
-      } catch (err) {
-        if (err.name === "AbortError") return;
-        setMsg(
-          msgEl,
-          err?.message || "Ocurrió un error al enviar. Probá de nuevo en unos minutos.",
-          "err"
-        );
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.classList.remove("opacity-70", "cursor-not-allowed");
-        }
-      }
+    AdminUI.setKpis({
+      clients: clients.total,
+      cases: cases.total,
+      appointments: appts.total,
+      documents: docs.total,
+    });
+
+    // Actividad: 6 próximos turnos (si vienen ordenados; si no, igual sirve)
+    const headHtml = `
+      <th class="px-4 py-3 font-semibold">Tipo</th>
+      <th class="px-4 py-3 font-semibold">Detalle</th>
+      <th class="px-4 py-3 font-semibold">Estado</th>
+      <th class="px-4 py-3 font-semibold">Fecha</th>
+      <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+    `;
+    const rowsHtml = appts.items
+      .slice(0, 10)
+      .map((a) => {
+        const type = badge("Turno");
+        const detail = `<div class="font-medium">${fmt(a.client_name || a.client?.full_name || ("Cliente #" + a.client_id))}</div>
+                        <div class="text-xs text-slate-600">${fmt(a.start_at)} · ${fmt(a.lawyer_name || ("Abogado #" + a.lawyer_id))}</div>`;
+        const st = statusPill(a.status);
+        const dt = `<span class="text-xs text-slate-600">${fmt(a.updated_at || a.created_at)}</span>`;
+        const actions = `<div class="flex justify-end gap-2">
+          <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="view" data-type="appointment" data-id="${a.id}">Ver</button>
+        </div>`;
+        return `<tr class="hover:bg-slate-50">
+          <td class="px-4 py-3">${type}</td>
+          <td class="px-4 py-3">${detail}</td>
+          <td class="px-4 py-3">${st}</td>
+          <td class="px-4 py-3">${dt}</td>
+          <td class="px-4 py-3 text-right">${actions}</td>
+        </tr>`;
+      })
+      .join("");
+
+    renderTableCommon({
+      title: "Actividad reciente",
+      count: appts.items.length,
+      headHtml,
+      rowsHtml,
+      pageInfo: "—",
+      canPrev: false,
+      canNext: false,
     });
   }
 
-  // ===== UI: year =====
-  const yearEl = document.getElementById("year");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  // =========================
+  // Views: list loaders
+  // =========================
+  async function loadClients() {
+    const json = await apiFetch(API.clients);
+    if (!json) return;
+    const { items, total, page, limit } = normalizeListPayload(json);
 
-  // ===== UI: mobile menu =====
-  const btnMenu = document.getElementById("btnMenu");
-  const mobileMenu = document.getElementById("mobileMenu");
-  btnMenu?.addEventListener("click", () => mobileMenu?.classList.toggle("hidden"));
+    const headHtml = `
+      <th class="px-4 py-3 font-semibold">Nombre</th>
+      <th class="px-4 py-3 font-semibold">Contacto</th>
+      <th class="px-4 py-3 font-semibold">Estado</th>
+      <th class="px-4 py-3 font-semibold">Actualizado</th>
+      <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+    `;
 
-  // ===== Forms =====
-  attachFormHandler({ formId: "quickForm", msgId: "quickFormMsg" });
-  attachFormHandler({ formId: "contactForm", msgId: "contactFormMsg" });
+    const rowsHtml = items.map((c) => {
+      const name = `<div class="font-medium">${fmt(c.full_name)}</div><div class="text-xs text-slate-600">ID #${fmt(c.id)}</div>`;
+      const contact = `<div class="text-sm">${fmt(c.email)}</div><div class="text-xs text-slate-600">${fmt(c.phone)}</div>`;
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">${name}</td>
+        <td class="px-4 py-3">${contact}</td>
+        <td class="px-4 py-3">${statusPill(c.status)}</td>
+        <td class="px-4 py-3"><span class="text-xs text-slate-600">${fmt(c.updated_at)}</span></td>
+        <td class="px-4 py-3 text-right">
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="edit" data-type="client" data-id="${c.id}">Editar</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join("");
+
+    renderTableCommon({
+      title: "Clientes",
+      count: total,
+      headHtml,
+      rowsHtml,
+      pageInfo: `Mostrando ${items.length} de ${total} (page ${page}, limit ${limit})`,
+      canPrev: false,
+      canNext: false,
+    });
+  }
+
+  async function loadCases() {
+    const json = await apiFetch(API.cases);
+    if (!json) return;
+    const { items, total } = normalizeListPayload(json);
+
+    const headHtml = `
+      <th class="px-4 py-3 font-semibold">Caso</th>
+      <th class="px-4 py-3 font-semibold">Cliente</th>
+      <th class="px-4 py-3 font-semibold">Prioridad</th>
+      <th class="px-4 py-3 font-semibold">Estado</th>
+      <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+    `;
+
+    const rowsHtml = items.map((c) => {
+      const caseCell = `<div class="font-medium">${fmt(c.title)}</div><div class="text-xs text-slate-600">ID #${fmt(c.id)}</div>`;
+      const clientCell = `<span class="text-sm">${fmt(c.client_name || ("Cliente #" + c.client_id))}</span>`;
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">${caseCell}</td>
+        <td class="px-4 py-3">${clientCell}</td>
+        <td class="px-4 py-3">${statusPill(c.priority)}</td>
+        <td class="px-4 py-3">${statusPill(c.status)}</td>
+        <td class="px-4 py-3 text-right">
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="edit" data-type="case" data-id="${c.id}">Editar</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join("");
+
+    renderTableCommon({
+      title: "Casos",
+      count: total,
+      headHtml,
+      rowsHtml,
+      pageInfo: `Mostrando ${items.length} de ${total}`,
+      canPrev: false,
+      canNext: false,
+    });
+  }
+
+  async function loadDocuments() {
+    const json = await apiFetch(API.documents);
+    if (!json) return;
+    const { items, total } = normalizeListPayload(json);
+
+    const headHtml = `
+      <th class="px-4 py-3 font-semibold">Archivo</th>
+      <th class="px-4 py-3 font-semibold">Tipo</th>
+      <th class="px-4 py-3 font-semibold">Caso</th>
+      <th class="px-4 py-3 font-semibold">Tamaño</th>
+      <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+    `;
+
+    const rowsHtml = items.map((d) => {
+      const kb = d.size_bytes ? Math.round(Number(d.size_bytes) / 1024) : null;
+      const fileCell = `<div class="font-medium">${fmt(d.filename)}</div><div class="text-xs text-slate-600">ID #${fmt(d.id)}</div>`;
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">${fileCell}</td>
+        <td class="px-4 py-3">${statusPill(d.doc_type)}</td>
+        <td class="px-4 py-3"><span class="text-sm">${fmt(d.case_title || ("Caso #" + d.case_id))}</span></td>
+        <td class="px-4 py-3"><span class="text-xs text-slate-600">${kb ? kb + " KB" : "—"}</span></td>
+        <td class="px-4 py-3 text-right">
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="view" data-type="document" data-id="${d.id}">Ver</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join("");
+
+    renderTableCommon({
+      title: "Documentos",
+      count: total,
+      headHtml,
+      rowsHtml,
+      pageInfo: `Mostrando ${items.length} de ${total}`,
+      canPrev: false,
+      canNext: false,
+    });
+  }
+
+  async function loadAppointments() {
+    const json = await apiFetch(API.appointments);
+    if (!json) return;
+    const { items, total } = normalizeListPayload(json);
+
+    const headHtml = `
+      <th class="px-4 py-3 font-semibold">Cliente</th>
+      <th class="px-4 py-3 font-semibold">Abogado</th>
+      <th class="px-4 py-3 font-semibold">Horario</th>
+      <th class="px-4 py-3 font-semibold">Estado</th>
+      <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+    `;
+
+    const rowsHtml = items.map((a) => {
+      const clientCell = `<div class="font-medium">${fmt(a.client_name || ("Cliente #" + a.client_id))}</div><div class="text-xs text-slate-600">${fmt(a.channel)}</div>`;
+      const lawyerCell = `<div class="text-sm">${fmt(a.lawyer_name || ("Abogado #" + a.lawyer_id))}</div><div class="text-xs text-slate-600">ID #${fmt(a.lawyer_id)}</div>`;
+      const timeCell = `<div class="text-sm">${fmt(a.start_at)}</div><div class="text-xs text-slate-600">${fmt(a.end_at)}</div>`;
+      const actions = `<div class="flex justify-end gap-2">
+        <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="confirm" data-type="appointment" data-id="${a.id}">Confirmar</button>
+        <button class="rounded-lg border border-rose-200 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50" data-action="cancel" data-type="appointment" data-id="${a.id}">Cancelar</button>
+      </div>`;
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">${clientCell}</td>
+        <td class="px-4 py-3">${lawyerCell}</td>
+        <td class="px-4 py-3">${timeCell}</td>
+        <td class="px-4 py-3">${statusPill(a.status)}</td>
+        <td class="px-4 py-3 text-right">${actions}</td>
+      </tr>`;
+    }).join("");
+
+    renderTableCommon({
+      title: "Agenda (Turnos)",
+      count: total,
+      headHtml,
+      rowsHtml,
+      pageInfo: `Mostrando ${items.length} de ${total}`,
+      canPrev: false,
+      canNext: false,
+    });
+  }
+
+  async function loadLawyers() {
+    const json = await apiFetch(API.lawyers);
+    if (!json) return;
+    const { items, total } = normalizeListPayload(json);
+
+    const headHtml = `
+      <th class="px-4 py-3 font-semibold">Nombre</th>
+      <th class="px-4 py-3 font-semibold">Especialidad</th>
+      <th class="px-4 py-3 font-semibold">Estado</th>
+      <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+    `;
+
+    const rowsHtml = items.map((l) => {
+      const name = `<div class="font-medium">${fmt(l.full_name)}</div><div class="text-xs text-slate-600">ID #${fmt(l.id)}</div>`;
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-4 py-3">${name}</td>
+        <td class="px-4 py-3"><span class="text-sm">${fmt(l.specialty)}</span></td>
+        <td class="px-4 py-3">${statusPill(l.status)}</td>
+        <td class="px-4 py-3 text-right">
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="edit" data-type="lawyer" data-id="${l.id}">Editar</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join("");
+
+    renderTableCommon({
+      title: "Abogados",
+      count: total,
+      headHtml,
+      rowsHtml,
+      pageInfo: `Mostrando ${items.length} de ${total}`,
+      canPrev: false,
+      canNext: false,
+    });
+  }
+
+  async function renderCurrentView() {
+    setHeaderByView(state.view);
+    AdminUI.showLoader(true);
+    AdminUI.showEmpty(false);
+
+    try {
+      if (state.view === "dashboard") await loadDashboard();
+      else if (state.view === "clients") await loadClients();
+      else if (state.view === "cases") await loadCases();
+      else if (state.view === "documents") await loadDocuments();
+      else if (state.view === "appointments") await loadAppointments();
+      else if (state.view === "lawyers") await loadLawyers();
+      else await loadDashboard();
+    } catch (err) {
+      console.error(err);
+      AdminUI.toast(`Error: ${err.message || err}`, "error");
+      AdminUI.setTable({
+        title: "Error",
+        count: 0,
+        headHtml: `
+          <th class="px-4 py-3 font-semibold">Detalle</th>
+          <th class="px-4 py-3 font-semibold">Acción</th>
+        `,
+        bodyHtml: `<tr>
+          <td class="px-4 py-3 text-sm text-slate-700">${fmt(err.message || err)}</td>
+          <td class="px-4 py-3">
+            <button id="retryBtn" class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100">Reintentar</button>
+          </td>
+        </tr>`,
+        pageInfo: "—",
+        canPrev: false,
+        canNext: false,
+      });
+      const btn = document.getElementById("retryBtn");
+      if (btn) btn.onclick = () => renderCurrentView();
+    } finally {
+      AdminUI.showLoader(false);
+    }
+  }
+
+  // =========================
+  // Events desde admin/index.html
+  // =========================
+  window.addEventListener("admin:view", (e) => {
+    state.view = e.detail.view;
+    state.page = 1;
+    renderCurrentView();
+  });
+
+  window.addEventListener("admin:search", (e) => {
+    state.q = e.detail.q || "";
+    // Por ahora no lo usamos en API (no tenés query params), pero lo dejamos listo
+    // Podés filtrar del lado cliente en el futuro o agregar search en backend.
+    renderCurrentView();
+  });
+
+  window.addEventListener("admin:filter", (e) => {
+    state.filter = e.detail.filter || "";
+    renderCurrentView();
+  });
+
+  window.addEventListener("admin:sort", (e) => {
+    state.sort = e.detail.sort || "created_at:desc";
+    renderCurrentView();
+  });
+
+  window.addEventListener("admin:page", (e) => {
+    state.page = Math.max(1, state.page + e.detail.dir);
+    renderCurrentView();
+  });
+
+  window.addEventListener("admin:refresh", () => {
+    AdminUI.toast("Actualizando…", "info");
+    renderCurrentView();
+  });
+
+  window.addEventListener("admin:health", () => loadSystemStatus());
+
+  window.addEventListener("admin:new", () => {
+    AdminUI.openModal({
+      title: "Nuevo (pendiente)",
+      subtitle: "Ahora mismo estamos conectando lecturas. Luego hacemos CRUD real.",
+      fieldsHtml: `
+        <label class="text-sm">
+          <div class="mb-1 text-xs font-semibold text-slate-600">Dato</div>
+          <input class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2" placeholder="…" />
+        </label>
+      `,
+    });
+  });
+
+  window.addEventListener("admin:logout", async () => {
+    try {
+      await apiFetch(API.logout, { method: "POST" });
+    } catch {}
+    window.location.href = "/admin/login";
+  });
+
+  // acciones dentro de tabla (confirm/cancel etc.)
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const type = btn.dataset.type;
+    const id = btn.dataset.id;
+
+    if (type === "appointment") {
+      try {
+        if (action === "confirm") {
+          await apiFetch(`/api/appointments/${id}/confirm`, { method: "POST" });
+          AdminUI.toast("Turno confirmado", "success");
+          await renderCurrentView();
+          return;
+        }
+        if (action === "cancel") {
+          await apiFetch(`/api/appointments/${id}/cancel`, { method: "POST" });
+          AdminUI.toast("Turno cancelado", "success");
+          await renderCurrentView();
+          return;
+        }
+      } catch (err) {
+        AdminUI.toast(`Error: ${err.message || err}`, "error");
+      }
+    }
+
+    // fallback
+    AdminUI.toast(`Acción "${action}" no implementada (type=${type}, id=${id})`, "info");
+  });
+
+  // =========================
+  // Boot
+  // =========================
+  (async function boot() {
+    await loadMe();
+    await loadSystemStatus();
+    await renderCurrentView();
+  })();
 })();
