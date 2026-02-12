@@ -2,3 +2,5 @@ data/
 .env
 node_modules/
 /server/db/app.sqlite
+tree.txt
+database.sqlite
