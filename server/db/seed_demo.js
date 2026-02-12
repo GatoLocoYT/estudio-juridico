@@ -6,7 +6,9 @@ const path = require("path");
 const Database = require("better-sqlite3");
 
 // === Ajustes ===
-const DB_PATH = path.join(__dirname, "app.sqlite");       // <- tu DB local
+
+const DB_PATH = process.env.SQLITE_FILE || path.join(__dirname, "app.sqlite"); // <- DB en prod para Railway
+// const DB_PATH = path.join(__dirname, "app.sqlite");       // <- tu DB local
 const SCHEMA_PATH = path.join(__dirname, "schema.sql");   // <- tu schema.sql
 
 function pad2(n) {
