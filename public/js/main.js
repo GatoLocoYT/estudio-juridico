@@ -19,8 +19,8 @@
     documents: "/api/documents",
     appointments: "/api/appointments",
     lawyers: "/api/lawyers",
-    logout: "/admin/logout", // si tu ruta difiere, cambiá esto
-    me: "/admin/me",         // opcional para mostrar email
+    logout: "/api/admin/logout", // si tu ruta difiere, cambiá esto
+    me: "/api/admin/me",         // opcional para mostrar email
     health: "/health",       // opcional
   };
 
@@ -581,22 +581,65 @@
   window.addEventListener("admin:health", () => loadSystemStatus());
 
   window.addEventListener("admin:new", () => {
+    if (state.view !== "clients") {
+      AdminUI.toast("Solo disponible en Clientes por ahora", "info");
+      return;
+    }
+
     AdminUI.openModal({
-      title: "Nuevo (pendiente)",
-      subtitle: "Ahora mismo estamos conectando lecturas. Luego hacemos CRUD real.",
+      title: "Nuevo Cliente",
+      subtitle: "Crear cliente",
+
       fieldsHtml: `
-        <label class="text-sm">
-          <div class="mb-1 text-xs font-semibold text-slate-600">Dato</div>
-          <input class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2" placeholder="…" />
-        </label>
-      `,
+      <label>
+        <div class="text-xs font-semibold">Nombre</div>
+        <input id="c_name" class="input" />
+      </label>
+
+      <label>
+        <div class="text-xs font-semibold">Email</div>
+        <input id="c_email" class="input" />
+      </label>
+
+      <label>
+        <div class="text-xs font-semibold">Teléfono</div>
+        <input id="c_phone" class="input" />
+      </label>
+    `,
     });
+
+    const form = document.getElementById("modalForm");
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+
+      const data = {
+        full_name: document.getElementById("c_name").value,
+        email: document.getElementById("c_email").value,
+        phone: document.getElementById("c_phone").value,
+      };
+
+      try {
+        await apiFetch("/api/clients", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+
+        AdminUI.toast("Cliente creado", "success");
+        AdminUI.closeModal();
+        loadClients();
+
+      } catch (err) {
+        AdminUI.toast(err.message, "error");
+      }
+    };
   });
+
 
   window.addEventListener("admin:logout", async () => {
     try {
       await apiFetch(API.logout, { method: "POST" });
-    } catch {}
+    } catch { }
     window.location.href = "/admin/login";
   });
 
@@ -609,6 +652,85 @@
     const type = btn.dataset.type;
     const id = btn.dataset.id;
 
+    // ============================
+    // EDITAR CLIENTE (MVP)
+    // ============================
+    if (type === "client" && action === "edit") {
+      try {
+        // Traer cliente
+        const client = await apiFetch(`/api/clients/${id}`);
+        if (!client) return;
+
+        // Abrir modal con datos
+        AdminUI.openModal({
+          title: "Editar cliente",
+          subtitle: `ID #${id}`,
+          showDelete: true,
+          fieldsHtml: `
+          <label class="text-sm">
+            <div class="mb-1 text-xs font-semibold">Nombre</div>
+            <input id="f_name" value="${client.full_name || ""}"
+              class="w-full rounded-xl border px-3 py-2" />
+          </label>
+
+          <label class="text-sm">
+            <div class="mb-1 text-xs font-semibold">Email</div>
+            <input id="f_email" value="${client.email || ""}"
+              class="w-full rounded-xl border px-3 py-2" />
+          </label>
+
+          <label class="text-sm">
+            <div class="mb-1 text-xs font-semibold">Teléfono</div>
+            <input id="f_phone" value="${client.phone || ""}"
+              class="w-full rounded-xl border px-3 py-2" />
+          </label>
+        `
+        });
+
+        // Guardar
+        document.getElementById("modalForm").onsubmit = async (ev) => {
+          ev.preventDefault();
+
+          const payload = {
+            full_name: document.getElementById("f_name").value,
+            email: document.getElementById("f_email").value,
+            phone: document.getElementById("f_phone").value,
+          };
+
+          await apiFetch(`/api/clients/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(payload),
+          });
+
+          AdminUI.toast("Cliente actualizado", "success");
+          AdminUI.closeModal();
+          renderCurrentView();
+        };
+
+        // Eliminar
+        document.getElementById("btnModalDelete").onclick = async () => {
+          if (!confirm("¿Eliminar cliente?")) return;
+
+          await apiFetch(`/api/clients/${id}`, {
+            method: "DELETE",
+          });
+
+          AdminUI.toast("Cliente eliminado", "success");
+          AdminUI.closeModal();
+          renderCurrentView();
+        };
+
+      } catch (err) {
+        AdminUI.toast("Error al editar cliente", "error");
+        console.error(err);
+      }
+
+      return;
+    }
+
+    // ============================
+    // TURNOS (lo tuyo actual)
+    // ============================
     if (type === "appointment") {
       try {
         if (action === "confirm") {
@@ -617,6 +739,7 @@
           await renderCurrentView();
           return;
         }
+
         if (action === "cancel") {
           await apiFetch(`/api/appointments/${id}/cancel`, { method: "POST" });
           AdminUI.toast("Turno cancelado", "success");
@@ -624,13 +747,14 @@
           return;
         }
       } catch (err) {
-        AdminUI.toast(`Error: ${err.message || err}`, "error");
+        AdminUI.toast("Error en turno", "error");
       }
     }
 
     // fallback
-    AdminUI.toast(`Acción "${action}" no implementada (type=${type}, id=${id})`, "info");
+    AdminUI.toast(`Acción no implementada: ${action}`, "info");
   });
+
 
   // =========================
   // Boot
