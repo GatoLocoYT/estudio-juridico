@@ -1,3 +1,9 @@
+/*
+ Sistema Web Estudio Jurídico
+ Autor: Ramiro Rahman Rintoul
+ Copyright © 2026
+ Uso restringido - No redistribuir
+*/
 // require("dotenv").config(); <-- No es necesario con dotenvx
 const express = require("express");
 const path = require("path");

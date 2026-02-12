@@ -1,3 +1,9 @@
+/*
+ Sistema Web Estudio Jurídico
+ Autor: Ramiro Rahman Rintoul
+ Copyright © 2026
+ Uso restringido - No redistribuir
+*/
 const Database = require("better-sqlite3");
 const fs = require("fs");
 const path = require("path");

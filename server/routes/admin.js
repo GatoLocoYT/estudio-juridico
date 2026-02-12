@@ -1,3 +1,9 @@
+/*
+ Sistema Web Estudio Jurídico
+ Autor: Ramiro Rahman Rintoul
+ Copyright © 2026
+ Uso restringido - No redistribuir
+*/
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { getDb } = require("../db/sqlite");

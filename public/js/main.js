@@ -1,3 +1,10 @@
+/*
+ Sistema Web Estudio Jurídico
+ Autor: Ramiro Rahman Rintoul
+ Copyright © 2026
+ Uso restringido - No redistribuir
+*/
+
 /* public/js/main.js
    Admin panel: carga real desde API (SQLite)
    Requiere que admin/index.html exponga window.AdminUI (helpers UI)
