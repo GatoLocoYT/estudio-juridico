@@ -1,24 +1,31 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Estudio Jurídico</title>
   <link rel="shortcut icon" href="assets/icon.png" type="image/x-icon">
 
+  <link rel="stylesheet" href="assets/style.css">
   <!-- Tailwind compilado (SIN CDN) -->
   <link rel="stylesheet" href="/assets/app.css" />
 
   <meta name="description" content="Estudio jurídico. Consultas y asesoramiento profesional. Atención por cita." />
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-slate-50 text-slate-800 antialiased scroll-smooth">
+  <a href="#contenido"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-slate-900 focus:shadow">Saltar
+    al contenido</a>
   <!-- Top bar -->
   <div class="bg-slate-100 border-b border-slate-200">
     <div class="mx-auto max-w-6xl px-4 py-2 flex items-center justify-between text-sm">
       <div class="flex gap-4 text-slate-600">
-        <span>📞 Línea directa: <a class="underline hover:text-slate-900" href="tel:+569000000000">+56 9 0000-000000</a></span>
-        <span class="hidden sm:inline">✉️ <a class="underline hover:text-slate-900" href="mailto:contacto@estudio.com">contacto@estudio.com</a></span>
+        <span>📞 Línea directa: <a class="underline hover:text-slate-900" href="tel:+569000000000">+56 9
+            0000-000000</a></span>
+        <span class="hidden sm:inline">✉️ <a class="underline hover:text-slate-900"
+            href="mailto:contacto@estudio.com">contacto@estudio.com</a></span>
       </div>
       <a class="text-slate-600 hover:text-slate-900 underline" href="/admin/login.html">¿Eres abogado?</a>
     </div>
@@ -28,7 +35,7 @@
   <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
     <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3">
-        <div class="h-9 w-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center">
+        <div class="h-9 w-9 rounded-xl bg-amber-100 border border-amber-200 shadow-sm flex items-center justify-center">
           <span class="text-amber-700 font-semibold"><img src="assets/icon.png" alt="Icono del estudio jurídico"></span>
         </div>
         <div class="leading-tight">
@@ -38,20 +45,27 @@
       </a>
 
       <nav class="hidden md:flex items-center gap-6 text-sm text-slate-600">
-        <a class="hover:text-slate-900" href="#firma">La Firma</a>
-        <a class="hover:text-slate-900" href="#areas">Áreas</a>
-        <a class="hover:text-slate-900" href="#equipo">Nuestro equipo</a>
-        <a class="hover:text-slate-900" href="#proceso">Proceso</a>
-        <a class="hover:text-slate-900" href="#faq">Preguntas</a>
-        <a class="hover:text-slate-900" href="#contacto">Contacto</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline" href="#firma">La
+          Firma</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline" href="#areas">Áreas</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline" href="#equipo">Nuestro
+          equipo</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline"
+          href="#proceso">Proceso</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline"
+          href="#faq">Preguntas</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline"
+          href="#contacto">Contacto</a>
       </nav>
 
       <div class="flex items-center gap-3">
-        <a href="#contacto" class="hidden sm:inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2 text-white font-semibold hover:bg-blue-600 transition">
-          Consulta gratuita
+        <a href="#contacto"
+          class="hidden sm:inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-white font-semibold hover:bg-slate-800 transition">
+          Agendar consulta
           <span aria-hidden="true">→</span>
         </a>
-        <button id="btnMenu" class="md:hidden rounded-xl border border-slate-300 px-3 py-2 text-slate-700 hover:bg-slate-100">
+        <button id="btnMenu"
+          class="md:hidden rounded-xl border border-slate-300 px-3 py-2 text-slate-700 hover:bg-slate-100">
           ☰
         </button>
       </div>
@@ -60,430 +74,743 @@
     <!-- Mobile menu -->
     <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 bg-white">
       <div class="mx-auto max-w-6xl px-4 py-3 flex flex-col gap-3 text-slate-700 text-sm">
-        <a class="hover:text-slate-900" href="#firma">La Firma</a>
-        <a class="hover:text-slate-900" href="#areas">Áreas</a>
-        <a class="hover:text-slate-900" href="#equipo">Nuestro equipo</a>
-        <a class="hover:text-slate-900" href="#proceso">Proceso</a>
-        <a class="hover:text-slate-900" href="#faq">Preguntas</a>
-        <a class="hover:text-slate-900" href="#contacto">Contacto</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline" href="#firma">La
+          Firma</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline" href="#areas">Áreas</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline" href="#equipo">Nuestro
+          equipo</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline"
+          href="#proceso">Proceso</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline"
+          href="#faq">Preguntas</a>
+        <a class="hover:text-slate-900 focus:outline-none focus:text-slate-900 focus:underline"
+          href="#contacto">Contacto</a>
       </div>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-b from-blue-50 via-white to-white"></div>
+  <main id="contenido">
+    <!-- Hero -->
+    <section class="hero-classic">
+      <div class="mx-auto max-w-6xl px-4 py-14 md:py-20 hero-content">
+        <div class="grid md:grid-cols-2 gap-10 items-start">
+          <div>
+            <p class="text-indigo-200 text-sm font-semibold tracking-widest uppercase">
+              Asesoramiento profesional
+            </p>
 
-    <div class="mx-auto max-w-6xl px-4 py-14 md:py-20 relative">
+            <h1 class="mt-3 text-4xl md:text-5xl font-semibold font-serif tracking-tight leading-tight text-white">
+              Justicia. <br> Estrategia. <br> Respaldo legal.
+            </h1>
+
+            <p class="mt-4 text-white/80 leading-relaxed">
+              Contanos tu situación y te orientamos con los próximos pasos. Evaluación inicial y derivación al área
+              correspondiente.
+            </p>
+
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href="#contacto"
+                class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-white font-semibold hover:bg-indigo-500 transition">
+                Agendar consulta
+                <span aria-hidden="true">→</span>
+              </a>
+
+              <a href="#areas"
+                class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/5 px-5 py-3 text-white/90 hover:bg-white/10 transition">
+                Ver áreas de práctica
+              </a>
+            </div>
+
+            <div class="mt-10 flex flex-wrap gap-3">
+              <div
+                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85">
+                <span class="h-2 w-2 rounded-full bg-indigo-300" aria-hidden="true"></span>
+                Respuesta en <span class="font-semibold text-white">24 h hábiles</span>
+              </div>
+
+              <div
+                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85">
+                <span class="h-2 w-2 rounded-full bg-indigo-300" aria-hidden="true"></span>
+                Confidencialidad profesional
+              </div>
+
+              <div
+                class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85">
+                <span class="h-2 w-2 rounded-full bg-indigo-300" aria-hidden="true"></span>
+                Honorarios claros, por escrito
+              </div>
+            </div>
+
+            <!-- <p class="mt-6 text-xs text-white/60">
+              Nota: La información de esta web es orientativa y no reemplaza asesoramiento legal personalizado.
+            </p> -->
+          </div>
+
+          <!-- Contact card -->
+          <aside class="rounded-3xl border border-white/15 bg-white/95 backdrop-blur shadow-sm p-6">
+            <h2 class="text-xl font-semibold text-slate-900">Consulta inicial</h2>
+            <p class="mt-1 text-sm text-slate-600">
+              Dejanos tus datos y una breve descripción. Te respondemos dentro de
+              <span class="font-semibold text-slate-900">24 h hábiles</span>.
+              No incluyas información sensible en este primer mensaje.
+            </p>
+
+            <form id="quickForm" class="mt-6 space-y-4">
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-slate-600">Nombre</label>
+                  <input title="nombre" name="nombre" required placeholder="Tu nombre" class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                         focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                </div>
+                <div>
+                  <label class="text-xs text-slate-600">Apellido</label>
+                  <input required title="apellido" name="apellido" placeholder="Tu apellido" class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                         focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-slate-600">Email</label>
+                  <input title="email" name="email" type="email" required placeholder="tu@email.com" class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                         focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                </div>
+                <div>
+                  <label class="text-xs text-slate-600">Teléfono</label>
+                  <input type="tel" title="telefono" name="telefono" inputmode="tel" placeholder="+56 9 ..." class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                         focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                </div>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-600">Área de interés</label>
+                <select title="area" name="area" required class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                       focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                  <option value="" selected disabled>Seleccionar</option>
+                  <option value="civil">Derecho Civil</option>
+                  <option value="familia">Familia</option>
+                  <option value="laboral">Laboral</option>
+                  <option value="penal">Penal</option>
+                  <option value="comercial">Comercial</option>
+                  <option value="consumidor">Consumidor</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-600">Breve descripción</label>
+                <textarea name="mensaje" rows="4" required class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                       focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                  placeholder="Contanos brevemente tu caso (sin datos sensibles por ahora)."></textarea>
+              </div>
+
+              <div class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <input id="consentQuick" name="consentimiento" type="checkbox" required
+                  class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-200" />
+                <label for="consentQuick" class="text-xs text-slate-600 leading-relaxed">
+                  Acepto que me contacten por los medios indicados y declaro haber leído la
+                  <button type="button" id="openPrivacyQuick"
+                    class="font-semibold text-indigo-700 hover:text-indigo-800 underline underline-offset-4">
+                    Política de privacidad
+                  </button>.
+                </label>
+
+              </div>
+
+              <button type="submit"
+                class="w-full rounded-xl bg-slate-900 px-4 py-3 text-white font-semibold hover:bg-slate-800 transition">
+                Enviar consulta
+              </button>
+
+              <p id="quickFormMsg" class="text-sm text-slate-600"></p>
+            </form>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- La firma -->
+    <section id="firma" class="mx-auto max-w-6xl px-4 py-16 scroll-mt-24">
       <div class="grid md:grid-cols-2 gap-10 items-start">
-        <div>
-          <p class="text-blue-700 text-sm font-semibold tracking-widest uppercase">Asesoramiento profesional</p>
-          <h1 class="mt-3 text-4xl md:text-5xl font-semibold leading-tight text-slate-900">
-            Defensa legal seria, clara y humana.
-          </h1>
+        <div class="rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
+          <div class="text-sm text-indigo-700 font-semibold">Nuestra firma</div>
+          <h2 class="mt-2 text-3xl font-semibold font-serif tracking-tight text-slate-900">
+            Más que abogados: estrategia, claridad y acompañamiento.
+          </h2>
           <p class="mt-4 text-slate-600 leading-relaxed">
-            Contanos tu situación y te indicamos los próximos pasos. Primera evaluación orientativa
-            y derivación al área correspondiente.
+            Enfocamos cada caso con criterio, documentación y comunicación transparente. Nuestro objetivo es que
+            entiendas tus opciones y avances con seguridad.
           </p>
-
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href="#contacto" class="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-white font-semibold hover:bg-blue-600 transition">
-              Iniciar consulta
-              <span aria-hidden="true">→</span>
-            </a>
-            <a href="#areas" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-5 py-3 text-slate-700 hover:bg-slate-100 transition">
-              Ver áreas de práctica
-            </a>
-          </div>
-
-          <div class="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm px-4 py-3">
-              <div class="text-xl font-semibold text-slate-900">20+</div>
-              <div class="text-xs text-slate-500">Años exp.</div>
-            </div>
-            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm px-4 py-3">
-              <div class="text-xl font-semibold text-slate-900">98%</div>
-              <div class="text-xs text-slate-500">Satisfacción</div>
-            </div>
-            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm px-4 py-3">
-              <div class="text-xl font-semibold text-slate-900">24/7</div>
-              <div class="text-xs text-slate-500">Recepción</div>
-            </div>
-            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm px-4 py-3">
-              <div class="text-xl font-semibold text-slate-900">+50M</div>
-              <div class="text-xs text-slate-500">Casos</div>
-            </div>
-          </div>
         </div>
 
-        <!-- Contact card -->
-        <aside class="rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
-          <h2 class="text-xl font-semibold text-slate-900">Consulta inicial</h2>
-          <p class="mt-1 text-sm text-slate-600">
-            Dejanos tus datos y una breve descripción. No incluyas información sensible en este primer mensaje.
+        <div class="grid gap-4">
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Atención personalizada</div>
+            <div class="text-sm text-slate-600 mt-1">Seguimiento claro del estado de tu consulta y próximos pasos.</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Confidencialidad profesional</div>
+            <div class="text-sm text-slate-600 mt-1">Tratamiento responsable de la información compartida.</div>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Derivación por especialidad</div>
+            <div class="text-sm text-slate-600 mt-1">Tu consulta llega al área correcta desde el inicio.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Áreas -->
+    <section id="areas" class="bg-slate-100 border-y border-slate-200 scroll-mt-24">
+      <!-- Equipo -->
+      <section id="equipo" class="team-section scroll-mt-24">
+        <div class="mx-auto max-w-6xl px-4 py-16 team-content">
+          <h2 class="text-3xl font-semibold font-serif tracking-tight text-white">
+            Nuestro equipo
+          </h2>
+
+          <p class="mt-2 text-white/80">
+            Profesionales comprometidos con tu caso.
           </p>
 
-          <form id="quickForm" class="mt-6 space-y-4">
-            <div class="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label class="text-xs text-slate-600">Nombre</label>
-                <input title="nombre" name="nombre" required
-                  class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+          <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Abogado 1 -->
+            <div class="rounded-2xl border border-white/20 bg-white/90 backdrop-blur shadow-lg p-6 text-center">
+              <div class="mx-auto h-24 w-24 rounded-full bg-slate-200 mb-4 overflow-hidden">
+                <!-- Si querés foto real, reemplazá por <img ...> -->
+                <!-- <img src="assets/equipo/elizabeth.jpg" alt="Elizabeth Araya" class="h-full w-full object-cover"> -->
               </div>
-              <div>
-                <label class="text-xs text-slate-600">Apellido</label>
-                <input required title="apellido" name="apellido"
-                  class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
-              </div>
+
+              <h3 class="font-semibold text-lg text-slate-900">
+                Elizabeth Araya
+              </h3>
+
+              <p class="text-sm text-indigo-700 font-medium mt-1">
+                Licenciada en Ciencias Jurídicas
+              </p>
+
+              <p class="mt-3 text-sm text-slate-600">
+                Experiencia en divorcios, alimentos y cuidado personal.
+              </p>
             </div>
 
-            <div class="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label class="text-xs text-slate-600">Email</label>
-                <input title="email" name="email" type="email" required
-                  class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+            <!-- Abogado 2 -->
+            <div class="rounded-2xl border border-white/20 bg-white/90 backdrop-blur shadow-lg p-6 text-center">
+              <div class="mx-auto h-24 w-24 rounded-full bg-slate-200 mb-4 overflow-hidden">
+                <!-- <img src="assets/equipo/yuri.jpg" alt="Yuri Cubillos" class="h-full w-full object-cover"> -->
               </div>
-              <div>
-                <label class="text-xs text-slate-600">Teléfono</label>
-                <input type="tel" title="telefono" name="telefono" inputmode="tel"
-                  class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                         focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
+
+              <h3 class="font-semibold text-lg text-slate-900">
+                Yuri Cubillos
+              </h3>
+
+              <p class="text-sm text-indigo-700 font-medium mt-1">
+                Magíster en Derecho Penal
+              </p>
+
+              <p class="mt-3 text-sm text-slate-600">
+                Experiencia en defensa penal y asesoramiento en causas complejas.
+              </p>
+            </div>
+
+            <!-- Abogado 3 -->
+            <div class="rounded-2xl border border-white/20 bg-white/90 backdrop-blur shadow-lg p-6 text-center">
+              <div class="mx-auto h-24 w-24 rounded-full bg-slate-200 mb-4 overflow-hidden">
+                <!-- <img src="assets/equipo/barbara.jpg" alt="Barbara Ramos" class="h-full w-full object-cover"> -->
               </div>
+
+              <h3 class="font-semibold text-lg text-slate-900">
+                Barbara Ramos
+              </h3>
+
+              <p class="text-sm text-indigo-700 font-medium mt-1">
+                Diplomado en Derecho Corporativo
+              </p>
+
+              <p class="mt-3 text-sm text-slate-600">
+                Experiencia en defensa corporativa y asesoramiento en negocios.
+              </p>
             </div>
 
-            <div>
-              <label class="text-xs text-slate-600">Área de interés</label>
-              <select title="area" name="area" required
-                class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-                <option value="" selected disabled>Seleccionar</option>
-                <option value="civil">Derecho Civil</option>
-                <option value="familia">Familia</option>
-                <option value="laboral">Laboral</option>
-                <option value="penal">Penal</option>
-                <option value="comercial">Comercial</option>
-                <option value="consumidor">Consumidor</option>
-                <option value="otro">Otro</option>
-              </select>
-            </div>
+          </div>
 
-            <div>
-              <label class="text-xs text-slate-600">Breve descripción</label>
-              <textarea name="mensaje" rows="4" required
-                class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                placeholder="Contanos brevemente tu caso (sin datos sensibles por ahora)."></textarea>
-            </div>
+          <div class="mt-10 rounded-3xl border border-white/15 bg-white/5 px-6 py-5 text-white/80">
+            <p class="text-sm leading-relaxed">
+              Trabajamos con criterio, confidencialidad y comunicación clara. Si tu consulta requiere un enfoque
+              específico,
+              la derivamos internamente al profesional más adecuado.
+            </p>
+          </div>
+        </div>
+      </section>
 
-            <button type="submit"
-              class="w-full rounded-xl bg-blue-700 px-4 py-3 text-white font-semibold hover:bg-blue-600 transition">
-              Enviar consulta
-            </button>
 
-            <p id="quickFormMsg" class="text-sm text-slate-600"></p>
-          </form>
-        </aside>
+      <div class="mx-auto max-w-6xl px-4 py-16">
+        <h2 class="text-3xl font-semibold font-serif tracking-tight text-slate-900">Áreas de práctica</h2>
+        <p class="mt-2 text-slate-600">Seleccioná el área que mejor describa tu situación.</p>
+
+        <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Derecho Civil</div>
+            <p class="mt-2 text-sm text-slate-600">Contratos, daños y perjuicios, responsabilidad civil.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Familia</div>
+            <p class="mt-2 text-sm text-slate-600">Divorcios, alimentos, régimen de comunicación, cuidado personal.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Laboral</div>
+            <p class="mt-2 text-sm text-slate-600">Despidos, indemnizaciones, registración, accidentes.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Penal</div>
+            <p class="mt-2 text-sm text-slate-600">Defensa, denuncias, medidas urgentes.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Comercial</div>
+            <p class="mt-2 text-sm text-slate-600">Sociedades, conflictos comerciales, cobranzas.</p>
+          </div>
+          <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 hover:border-indigo-200 transition">
+            <div class="font-semibold text-slate-900">Consumidor</div>
+            <p class="mt-2 text-sm text-slate-600">Reclamos, garantías, incumplimientos.</p>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- La firma -->
-  <section id="firma" class="mx-auto max-w-6xl px-4 py-16">
-    <div class="grid md:grid-cols-2 gap-10 items-start">
-      <div class="rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
-        <div class="text-sm text-blue-700 font-semibold">Nuestra firma</div>
-        <h2 class="mt-2 text-3xl font-semibold text-slate-900">
-          Más que abogados: estrategia, claridad y acompañamiento.
+    <!-- Proceso -->
+    <section id="proceso" class="process-section scroll-mt-24">
+      <div class="mx-auto max-w-6xl px-4 py-16 process-content">
+
+        <h2 class="text-3xl font-semibold font-serif tracking-tight text-white">
+          ¿Cómo trabajamos?
         </h2>
-        <p class="mt-4 text-slate-600 leading-relaxed">
-          Enfocamos cada caso con criterio, documentación y comunicación transparente. Nuestro objetivo es que
-          entiendas tus opciones y avances con seguridad.
-        </p>
-      </div>
 
-      <div class="grid gap-4">
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Atención personalizada</div>
-          <div class="text-sm text-slate-600 mt-1">Seguimiento claro del estado de tu consulta y próximos pasos.</div>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Confidencialidad profesional</div>
-          <div class="text-sm text-slate-600 mt-1">Tratamiento responsable de la información compartida.</div>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Derivación por especialidad</div>
-          <div class="text-sm text-slate-600 mt-1">Tu consulta llega al área correcta desde el inicio.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Áreas -->
-  <section id="areas" class="bg-slate-100 border-y border-slate-200">
-    <!-- Equipo -->
-<section id="equipo" class="mx-auto max-w-6xl px-4 py-16">
-  <h2 class="text-3xl font-semibold text-slate-900">Nuestro equipo</h2>
-  <p class="mt-2 text-slate-600">
-    Profesionales comprometidos con tu caso.
-  </p>
-
-  <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-    <!-- Abogado 1 -->
-    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 text-center">
-      <div class="mx-auto h-24 w-24 rounded-full bg-slate-200 mb-4"></div>
-
-      <h3 class="font-semibold text-lg text-slate-900">
-        Elizabeth Araya
-      </h3>
-
-      <p class="text-sm text-blue-700 font-medium mt-1">
-        Licenciada en Ciencias Jurídicas
-      </p>
-
-      <p class="mt-3 text-sm text-slate-600">
-        Experiencia en divorcios, alimentos y cuidado personal.
-      </p>
-    </div>
-
-    <!-- Abogado 2 -->
-    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 text-center">
-      <div class="mx-auto h-24 w-24 rounded-full bg-slate-200 mb-4"></div>
-
-      <h3 class="font-semibold text-lg text-slate-900">
-        Yuri Cubillos
-      </h3>
-
-      <p class="text-sm text-blue-700 font-medium mt-1">
-        Magíster en Derecho Penal
-      </p>
-
-      <p class="mt-3 text-sm text-slate-600">
-        Experiencia en defensa penal y asesoramiento en causas complejas.
-      </p>
-    </div>
-
-    <!-- Abogado 3 -->
-    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 text-center">
-      <div class="mx-auto h-24 w-24 rounded-full bg-slate-200 mb-4"></div>
-
-      <h3 class="font-semibold text-lg text-slate-900">
-        Barbara Ramos
-      </h3>
-
-      <p class="text-sm text-blue-700 font-medium mt-1">
-        Diplomado en Derecho Corporativo
-      </p>
-
-      <p class="mt-3 text-sm text-slate-600">
-        Experiencia en defensa corporativa y asesoramiento en negocios.
-      </p>
-    </div>
-
-  </div>
-</section>
-
-    <div class="mx-auto max-w-6xl px-4 py-16">
-      <h2 class="text-3xl font-semibold text-slate-900">Áreas de práctica</h2>
-      <p class="mt-2 text-slate-600">Seleccioná el área que mejor describa tu situación.</p>
-
-      <div class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Derecho Civil</div>
-          <p class="mt-2 text-sm text-slate-600">Contratos, daños y perjuicios, responsabilidad civil.</p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Familia</div>
-          <p class="mt-2 text-sm text-slate-600">Divorcios, alimentos, régimen de comunicación, cuidado personal.</p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Laboral</div>
-          <p class="mt-2 text-sm text-slate-600">Despidos, indemnizaciones, registración, accidentes.</p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Penal</div>
-          <p class="mt-2 text-sm text-slate-600">Defensa, denuncias, medidas urgentes.</p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Comercial</div>
-          <p class="mt-2 text-sm text-slate-600">Sociedades, conflictos comerciales, cobranzas.</p>
-        </div>
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <div class="font-semibold text-slate-900">Consumidor</div>
-          <p class="mt-2 text-sm text-slate-600">Reclamos, garantías, incumplimientos.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Proceso -->
-  <section id="proceso" class="mx-auto max-w-6xl px-4 py-16">
-    <h2 class="text-3xl font-semibold text-slate-900">¿Cómo trabajamos?</h2>
-    <p class="mt-2 text-slate-600">Un proceso simple y transparente.</p>
-
-    <ol class="mt-8 grid md:grid-cols-3 gap-4">
-      <li class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-        <div class="text-blue-700 font-semibold">1) Recepción</div>
-        <p class="mt-2 text-sm text-slate-600">Recibimos tu consulta y confirmamos el contacto.</p>
-      </li>
-      <li class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-        <div class="text-blue-700 font-semibold">2) Evaluación</div>
-        <p class="mt-2 text-sm text-slate-600">Derivamos al área correspondiente y solicitamos datos clave.</p>
-      </li>
-      <li class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-        <div class="text-blue-700 font-semibold">3) Próximos pasos</div>
-        <p class="mt-2 text-sm text-slate-600">Te proponemos un plan de acción y, si corresponde, agenda de cita.</p>
-      </li>
-    </ol>
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq" class="bg-slate-100 border-y border-slate-200">
-    <div class="mx-auto max-w-6xl px-4 py-16">
-      <h2 class="text-3xl font-semibold text-slate-900">Preguntas frecuentes</h2>
-
-      <div class="mt-8 grid gap-3">
-        <details class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <summary class="cursor-pointer font-semibold text-slate-900">¿Cuánto tarda la respuesta?</summary>
-          <p class="mt-2 text-sm text-slate-600">Respondemos a la brevedad. Si la consulta es urgente, priorizamos el contacto.</p>
-        </details>
-
-        <details class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <summary class="cursor-pointer font-semibold text-slate-900">¿Qué información debo incluir?</summary>
-          <p class="mt-2 text-sm text-slate-600">Una descripción general. Evitá datos sensibles en el primer contacto.</p>
-        </details>
-
-        <details class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-          <summary class="cursor-pointer font-semibold text-slate-900">¿Puedo agendar una cita?</summary>
-          <p class="mt-2 text-sm text-slate-600">Sí. Luego de la evaluación coordinamos día y horario.</p>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contacto -->
-  <section id="contacto" class="mx-auto max-w-6xl px-4 py-16">
-    <div class="grid md:grid-cols-2 gap-10 items-start">
-      <div>
-        <h2 class="text-3xl font-semibold text-slate-900">Contacto</h2>
-        <p class="mt-2 text-slate-600">
-          Podés escribirnos o visitarnos. Coordinamos por cita.
+        <p class="mt-2 text-white/80">
+          Un proceso simple, claro y estructurado.
         </p>
 
-        <div class="mt-6 rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
-          <div class="font-semibold text-slate-900">Oficinas</div>
-          <p class="mt-2 text-sm text-slate-600">
-            Dirección del estudio<br/>
-            Ciudad, País
+        <ol class="mt-8 grid md:grid-cols-3 gap-6">
+
+          <li class="process-card rounded-2xl bg-white/90 backdrop-blur shadow-lg p-6">
+            <div class="text-indigo-700 font-semibold text-lg">
+              1) Recepción
+            </div>
+            <p class="mt-3 text-sm text-slate-600">
+              Recibimos tu consulta, confirmamos el contacto y registramos la información inicial.
+            </p>
+          </li>
+
+          <li class="process-card rounded-2xl bg-white/90 backdrop-blur shadow-lg p-6">
+            <div class="text-indigo-700 font-semibold text-lg">
+              2) Evaluación
+            </div>
+            <p class="mt-3 text-sm text-slate-600">
+              Derivamos al área correspondiente y analizamos los antecedentes relevantes.
+            </p>
+          </li>
+
+          <li class="process-card rounded-2xl bg-white/90 backdrop-blur shadow-lg p-6">
+            <div class="text-indigo-700 font-semibold text-lg">
+              3) Próximos pasos
+            </div>
+            <p class="mt-3 text-sm text-slate-600">
+              Proponemos una estrategia clara y coordinamos las acciones necesarias.
+            </p>
+          </li>
+
+        </ol>
+
+      </div>
+    </section>
+
+
+    <!-- FAQ -->
+    <section id="faq" class="bg-slate-100 border-y border-slate-200 scroll-mt-24">
+      <div class="mx-auto max-w-6xl px-4 py-16">
+        <h2 class="text-3xl font-semibold font-serif tracking-tight text-slate-900">Preguntas frecuentes</h2>
+
+        <div class="mt-8 grid gap-3">
+          <details class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+            <summary class="cursor-pointer font-semibold text-slate-900">¿Cuánto tarda la respuesta?</summary>
+            <p class="mt-2 text-sm text-slate-600">Respondemos a la brevedad. Si la consulta es urgente, priorizamos el
+              contacto.</p>
+          </details>
+
+          <details class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+            <summary class="cursor-pointer font-semibold text-slate-900">¿Qué información debo incluir?</summary>
+            <p class="mt-2 text-sm text-slate-600">Una descripción general. Evitá datos sensibles en el primer contacto.
+            </p>
+          </details>
+
+          <details class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
+            <summary class="cursor-pointer font-semibold text-slate-900">¿Puedo agendar una cita?</summary>
+            <p class="mt-2 text-sm text-slate-600">Sí. Luego de la evaluación coordinamos día y horario.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contacto -->
+    <section id="contacto" class="contact-section scroll-mt-24">
+      <div class="mx-auto max-w-6xl px-4 py-16 contact-content">
+
+        <div class="grid md:grid-cols-2 gap-12 items-start">
+
+          <!-- Info -->
+          <div>
+            <h2 class="text-3xl font-semibold font-serif tracking-tight text-white">
+              Contacto
+            </h2>
+
+            <p class="mt-2 text-white/80">
+              Podés escribirnos o visitarnos. Coordinamos atención por cita.
+            </p>
+
+            <div class="mt-6 rounded-3xl border border-white/20 bg-white/90 backdrop-blur shadow-lg p-6">
+              <div class="font-semibold text-slate-900">Oficinas</div>
+
+              <p class="mt-2 text-sm text-slate-600">
+                Dirección del estudio<br />
+                Ciudad, País
+              </p>
+
+              <div class="mt-4 text-sm text-slate-600 space-y-1">
+                <div>📞 +56 9 0000-000000</div>
+                <div>✉️ contacto@estudio.com</div>
+              </div>
+            </div>
+
+            <div class="mt-6 text-sm text-white/70 leading-relaxed">
+              Nuestro equipo responderá dentro de las 24 horas hábiles.
+            </div>
+          </div>
+
+          <!-- Formulario -->
+          <div class="rounded-3xl border border-white/20 bg-white/95 backdrop-blur shadow-lg p-8">
+
+            <h3 class="text-xl font-semibold text-slate-900">
+              Enviar consulta
+            </h3>
+
+            <p class="mt-1 text-sm text-slate-600">
+              Tu mensaje será evaluado por el equipo y priorizado según urgencia.
+            </p>
+
+            <form id="contactForm" class="mt-6 space-y-5">
+
+              <div>
+                <label class="text-xs text-slate-600">Nombre y apellido</label>
+                <input title="nombre" name="nombre" required placeholder="Nombre y Apellido" class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                     focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+              </div>
+
+              <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-slate-600">Email</label>
+                  <input title="email" name="email" type="email" required placeholder="Email" class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                       focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                </div>
+
+                <div>
+                  <label class="text-xs text-slate-600">Teléfono</label>
+                  <input type="tel" title="telefono" name="telefono" inputmode="tel" placeholder="+56900000000" required
+                    class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                       focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                </div>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-600">Área</label>
+                <select title="area" name="area" required class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                     focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200">
+                  <option value="" selected disabled>Seleccionar</option>
+                  <option value="civil">Civil</option>
+                  <option value="familia">Familia</option>
+                  <option value="laboral">Laboral</option>
+                  <option value="penal">Penal</option>
+                  <option value="comercial">Comercial</option>
+                  <option value="consumidor">Consumidor</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs text-slate-600">Mensaje</label>
+                <textarea title="mensaje" name="mensaje" rows="5" required
+                  placeholder="Contanos tu situación y te indicamos los próximos pasos. No incluyas información sensible en este primer mensaje."
+                  class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
+                     focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"></textarea>
+              </div>
+              <div class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <input id="consentQuick" name="consentimiento" type="checkbox" required
+                  class="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-200" />
+                <label for="consentQuick" class="text-xs text-slate-600 leading-relaxed">
+                  Acepto que me contacten por los medios indicados y declaro haber leído la
+                  <button type="button" id="openPrivacyQuick1"
+                    class="font-semibold text-indigo-700 hover:text-indigo-800 underline underline-offset-4">
+                    Política de privacidad
+                  </button>.
+                </label>
+
+              </div>
+
+              <button
+                class="w-full rounded-xl bg-slate-900 px-4 py-3 text-white font-semibold hover:bg-slate-800 transition"
+                type="submit">
+                Enviar
+              </button>
+
+              <p id="contactFormMsg" class="text-sm text-slate-600"></p>
+
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <footer class="border-t border-slate-800 bg-slate-900">
+    <div class="mx-auto max-w-6xl px-4 py-12">
+      <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Brand -->
+        <div>
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-2xl bg-amber-100 border border-amber-200 flex items-center justify-center">
+              <img class="h-6 w-6" src="assets/icon.png" alt="Icono del estudio jurídico">
+            </div>
+            <div class="leading-tight">
+              <div class="font-semibold tracking-wide text-white">Justicia &amp; Ley</div>
+              <div class="text-xs text-slate-400">Estudio Jurídico</div>
+            </div>
+          </div>
+
+          <p class="mt-4 text-sm text-slate-300 leading-relaxed">
+            Asesoramiento profesional con enfoque en claridad, estrategia y acompañamiento.
           </p>
-          <div class="mt-4 text-sm text-slate-600">
-            <div>📞 +56 9 0000-000000</div>
-            <div>✉️ contacto@estudio.com</div>
+
+          <div class="mt-4 text-sm text-slate-300 space-y-1">
+            <div>📞 <a class="underline underline-offset-4 hover:text-white" href="tel:+569000000000">+56 9
+                0000-000000</a></div>
+            <div>✉️ <a class="underline underline-offset-4 hover:text-white"
+                href="mailto:contacto@estudio.com">contacto@estudio.com</a></div>
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div>
+          <div class="text-sm font-semibold text-white">Secciones</div>
+          <ul class="mt-4 space-y-2 text-sm text-slate-300">
+            <li><a class="hover:text-white" href="#firma">La firma</a></li>
+            <li><a class="hover:text-white" href="#areas">Áreas de práctica</a></li>
+            <li><a class="hover:text-white" href="#equipo">Nuestro equipo</a></li>
+            <li><a class="hover:text-white" href="#faq">Preguntas frecuentes</a></li>
+            <li><a class="hover:text-white" href="#contacto">Contacto</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <div class="text-sm font-semibold text-white">Información</div>
+          <ul class="mt-4 space-y-2 text-sm text-slate-300">
+            <li><a class="hover:text-white" href="#">Términos y condiciones</a></li>
+            <li><a class="hover:text-white" href="#">Política de privacidad</a></li>
+            <li><a class="hover:text-white" href="#">Aviso legal</a></li>
+          </ul>
+          <!-- <p class="mt-4 text-xs text-slate-400">
+            Este sitio no reemplaza asesoramiento legal personalizado. Coordinamos atención por cita.
+          </p> -->
+        </div>
+
+        <!-- Redes (placeholder) -->
+        <div>
+          <div class="text-sm font-semibold text-white">Nuestras redes</div>
+          <p class="mt-4 text-sm text-slate-300">
+            Próximamente: botones a Instagram, LinkedIn, Facebook, etc.
+          </p>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <!-- Botones placeholder (cambiar href cuando tengas redes) -->
+            <a href="#"
+              class="inline-flex items-center rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800 hover:text-white transition">Instagram</a>
+            <a href="#"
+              class="inline-flex items-center rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800 hover:text-white transition">TikTok</a>
+            <a href="#"
+              class="inline-flex items-center rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800 hover:text-white transition">Facebook</a>
+            <a href="#"
+              class="inline-flex items-center rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800 hover:text-white transition">Linkedin</a>
+            <!-- despues cambiar los href a las urls reales de tus redes sociales y reemplazar el texto por símbolos -->
           </div>
         </div>
       </div>
 
-      <div class="rounded-3xl border border-slate-200 bg-white shadow-sm p-6">
-        <h3 class="text-xl font-semibold text-slate-900">Enviar consulta</h3>
-        <p class="mt-1 text-sm text-slate-600">
-          Tu mensaje será evaluado por el equipo y priorizado según urgencia.
-        </p>
-
-        <form id="contactForm" class="mt-6 space-y-4">
-          <div>
-            <label class="text-xs text-slate-600">Nombre y apellido</label>
-            <input title="nombre" name="nombre" required placeholder="Nombre y Apellido"
-              class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                     focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
-          </div>
-
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label class="text-xs text-slate-600">Email</label>
-              <input title="email" name="email" type="email" required placeholder="Email"
-                class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
-            </div>
-            <div>
-              <label class="text-xs text-slate-600">Teléfono</label>
-              <input type="tel" title="telefono" name="telefono" inputmode="tel" placeholder="+56900000000" required
-                class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                       focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
-            </div>
-          </div>
-
-          <div>
-            <label class="text-xs text-slate-600">Área</label>
-            <select title="area" name="area" required
-              class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                     focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
-              <option value="" selected disabled>Seleccionar</option>
-              <option value="civil">Civil</option>
-              <option value="familia">Familia</option>
-              <option value="laboral">Laboral</option>
-              <option value="penal">Penal</option>
-              <option value="comercial">Comercial</option>
-              <option value="consumidor">Consumidor</option>
-              <option value="otro">Otro</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-xs text-slate-600">Mensaje</label>
-            <textarea title="mensaje" name="mensaje" rows="5" required placeholder="Contanos tu situación y te indicamos los próximos pasos. No incluyas información sensible en este primer mensaje."
-              class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-                     focus:border-blue-500 focus:ring-2 focus:ring-blue-200"></textarea>
-          </div>
-
-          <button class="w-full rounded-xl bg-blue-700 px-4 py-3 text-white font-semibold hover:bg-blue-600 transition" type="submit">
-            Enviar
-          </button>
-
-          <p id="contactFormMsg" class="text-sm text-slate-600"></p>
-        </form>
+      <div
+        class="mt-10 pt-6 border-t border-slate-800 flex flex-col md:flex-row gap-3 md:items-center md:justify-between text-sm text-slate-400">
+        <div>© <span id="year"></span> Justicia &amp; Ley — Estudio Jurídico</div>
+        <div class="text-xs">
+          Desarrollado por <a class="hover:text-white underline underline-offset-4"
+            href="https://github.com/GatoLocoYT/">Verny - Ramiro Rahman Rintoul</a>
+        </div>
       </div>
-    </div>
-  </section>
-
-  <footer class="border-t border-slate-200 bg-white">
-    <div class="mx-auto max-w-6xl px-4 py-10 text-sm text-slate-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-      <div>© <span id="year"></span> Justicia &amp; Ley — Estudio Jurídico</div>
-      <div class="flex gap-4">
-        <a class="hover:text-slate-900" href="#firma">La firma</a>
-        <a class="hover:text-slate-900" href="#contacto">Contacto</a>
-      </div>
-      <div class="text-xs text-slate-500">Desarrollado por <a class="hover:text-slate-900" href="https://github.com/GatoLocoYT/">Verny - Ramiro Rahman Rintoul</a></div>
     </div>
   </footer>
 
+
+  <!-- Modal: Política de privacidad -->
+  <div id="privacyModal" class="fixed inset-0 z-[200] hidden" aria-hidden="true">
+    <!-- Backdrop -->
+    <div id="privacyBackdrop" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+
+    <!-- Dialog -->
+    <div class="relative mx-auto flex min-h-full max-w-2xl items-center justify-center p-4">
+      <div role="dialog" aria-modal="true" aria-labelledby="privacyTitle"
+        class="w-full rounded-3xl bg-white shadow-xl border border-slate-200">
+        <div class="flex items-start justify-between gap-4 p-6 border-b border-slate-200">
+          <div>
+            <h3 id="privacyTitle" class="text-lg font-semibold text-slate-900">
+              Política de privacidad
+            </h3>
+            <p class="mt-1 text-sm text-slate-600">
+              Última actualización: <span class="font-medium">14/02/2026</span>
+            </p>
+          </div>
+
+          <button type="button" id="closePrivacy"
+            class="rounded-xl border border-slate-300 px-3 py-2 text-slate-700 hover:bg-slate-100 transition"
+            aria-label="Cerrar">
+            ✕
+          </button>
+        </div>
+
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
+          <!-- 👇 EDITÁ este contenido a tu gusto -->
+          <div class="prose prose-slate max-w-none">
+            <p>
+              En <strong>Justicia &amp; Ley</strong> valoramos tu privacidad. Esta política describe cómo
+              recolectamos y usamos la información que nos compartís al enviar formularios en este sitio.
+            </p>
+
+            <h4>1) Datos que recopilamos</h4>
+            <ul>
+              <li>Nombre y apellido</li>
+              <li>Email y/o teléfono</li>
+              <li>Área de interés y mensaje descriptivo</li>
+            </ul>
+
+            <h4>2) Finalidad del uso</h4>
+            <p>
+              Usamos tus datos exclusivamente para responder tu consulta, coordinar una cita y brindarte
+              orientación inicial. No vendemos ni compartimos tu información con terceros con fines comerciales.
+            </p>
+
+            <h4>3) Confidencialidad</h4>
+            <p>
+              Te pedimos no incluir información sensible en el primer mensaje. De ser necesario, te indicaremos
+              cómo continuar por canales apropiados.
+            </p>
+
+            <h4>4) Conservación</h4>
+            <p>
+              Conservamos los datos el tiempo necesario para atender tu solicitud y cumplir obligaciones legales
+              aplicables.
+            </p>
+
+            <h4>5) Tus derechos</h4>
+            <p>
+              Podés solicitar acceso, rectificación o eliminación de tus datos escribiendo a
+              <strong>contacto@estudio.com</strong>.
+            </p>
+
+            <h4>6) Cambios</h4>
+            <p>
+              Podemos actualizar esta política para reflejar mejoras del servicio o cambios legales. La fecha
+              de actualización aparecerá al inicio del documento.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-6 border-t border-slate-200 flex flex-col sm:flex-row gap-3 sm:justify-end">
+          <button type="button" id="closePrivacy2"
+            class="rounded-xl border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-100 transition">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="./js/main.js"></script>
 
-  <!-- <script>
+  <script>
+    // Año automático
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    const btn = document.getElementById("btnMenu");
+    // Menú mobile
     const menu = document.getElementById("mobileMenu");
+    const btn = document.getElementById("btnMenu");
     btn?.addEventListener("click", () => menu.classList.toggle("hidden"));
+  </script>
+  <script>
+    (function () {
+      const modal = document.getElementById("privacyModal");
+      const backdrop = document.getElementById("privacyBackdrop");
+      const openBtn = document.getElementById("openPrivacyQuick");
+      const openBtn1 = document.getElementById("openPrivacyQuick1");
+      const closeBtn = document.getElementById("closePrivacy");
+      const closeBtn2 = document.getElementById("closePrivacy2");
 
-    // Placeholder de envío (luego lo conectamos a /api/consultas)
-    async function handleSubmit(form, msgEl) {
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        msgEl.textContent = "Enviando...";
+      let lastFocused = null;
 
-        // TODO: reemplazar por fetch real a tu API
-        await new Promise(r => setTimeout(r, 600));
+      function openModal() {
+        lastFocused = document.activeElement;
 
-        msgEl.textContent = "¡Listo! Recibimos tu consulta. Te contactaremos a la brevedad.";
-        form.reset();
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+
+        // Evitar scroll del body
+        document.body.style.overflow = "hidden";
+
+        // Enfocar el botón de cerrar
+        closeBtn.focus();
+      }
+
+      function closeModal() {
+        modal.classList.add("hidden");
+        modal.setAttribute("aria-hidden", "true");
+
+        document.body.style.overflow = "";
+
+        // Volver el foco a donde estaba
+        if (lastFocused && typeof lastFocused.focus === "function") {
+          lastFocused.focus();
+        }
+      }
+
+      // Abrir
+      openBtn?.addEventListener("click", openModal);
+      openBtn1?.addEventListener("click", openModal);
+
+      // Cerrar (botones)
+      closeBtn?.addEventListener("click", closeModal);
+      closeBtn2?.addEventListener("click", closeModal);
+
+      // Cerrar (click en backdrop)
+      backdrop?.addEventListener("click", closeModal);
+
+      // Cerrar (ESC)
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal && !modal.classList.contains("hidden")) {
+          closeModal();
+        }
       });
-    }
+    })();
+  </script>
 
-    handleSubmit(document.getElementById("quickForm"), document.getElementById("quickFormMsg"));
-    handleSubmit(document.getElementById("contactForm"), document.getElementById("contactFormMsg"));
-  </script> -->
 </body>
+
 </html>

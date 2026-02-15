@@ -5,10 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin · Estudio Jurídico</title>
 
-  <!-- Ajustá la ruta al CSS generado por Tailwind -->
+  <!-- Tailwind compilado (SIN CDN) -->
   <link rel="stylesheet" href="/assets/app.css" />
 
   <meta name="color-scheme" content="light" />
+
+  <!-- UI polish sin librerías -->
+  <style>
+    /* Scrollbar (opcional, discreto) */
+    .soft-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+    .soft-scroll::-webkit-scrollbar-thumb { background: rgb(226 232 240); border-radius: 999px; }
+    .soft-scroll::-webkit-scrollbar-track { background: transparent; }
+
+    /* Chip “activo” del sidebar */
+    .nav-btn.is-active{
+      background: rgb(238 242 255); /* indigo-50 */
+      color: rgb(15 23 42); /* slate-900 */
+      border: 1px solid rgb(199 210 254); /* indigo-200 */
+      position: relative;
+    }
+    .nav-btn.is-active::before{
+      content:"";
+      position:absolute;
+      left: 10px;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      border-radius: 999px;
+      background: rgb(99 102 241); /* indigo-500 */
+    }
+
+    /* Modal: fade-in suave */
+    .modal-enter { animation: modalFade .16s ease-out; }
+    @keyframes modalFade { from { opacity: .0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
 </head>
 
 <body class="bg-slate-50 text-slate-900">
@@ -16,17 +46,24 @@
   <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/85 backdrop-blur">
     <div class="mx-auto flex max-w-[1200px] items-center justify-between gap-3 px-4 py-3">
       <div class="flex items-center gap-3">
-        <a href="/" class="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-slate-100">
-          <div class="h-9 w-9 rounded-xl bg-slate-900 text-white grid place-items-center font-semibold">EJ</div>
+        <a href="/" class="group flex items-center gap-3 rounded-2xl px-2 py-1 hover:bg-slate-100 transition">
+          <div class="h-9 w-9 rounded-2xl bg-amber-100 border border-amber-200 shadow-sm grid place-items-center">
+            <span class="text-amber-800 font-semibold">EJ</span>
+          </div>
+
           <div class="leading-tight">
-            <div class="text-sm font-semibold">Panel de Administración</div>
-            <div class="text-xs text-slate-500">CRM · Agenda · Documentos</div>
+            <div class="text-sm font-semibold text-slate-900 group-hover:text-slate-950">
+              Panel de Administración
+            </div>
+            <div class="text-xs text-slate-500">
+              CRM · Agenda · Documentos
+            </div>
           </div>
         </a>
       </div>
 
       <div class="flex items-center gap-2">
-        <div class="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+        <div class="hidden sm:flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
           <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
           <span class="text-xs text-slate-600">Sesión activa</span>
           <span class="text-xs font-medium text-slate-900" id="adminEmail">admin@estudio.com</span>
@@ -34,7 +71,7 @@
 
         <button
           id="btnLogout"
-          class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 active:scale-[0.99]"
+          class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 active:scale-[0.99] transition"
         >
           Cerrar sesión
         </button>
@@ -45,49 +82,61 @@
   <!-- Layout -->
   <main class="mx-auto grid max-w-[1200px] grid-cols-1 gap-4 px-4 py-4 lg:grid-cols-[280px_1fr]">
     <!-- Sidebar -->
-    <aside class="rounded-2xl border border-slate-200 bg-white p-3">
-      <div class="mb-3">
-        <div class="text-xs font-semibold text-slate-500">NAVEGACIÓN</div>
+    <aside class="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+      <div class="mb-3 px-2">
+        <div class="text-xs font-semibold text-slate-500 tracking-widest">NAVEGACIÓN</div>
       </div>
 
       <nav class="space-y-1">
-        <button data-view="dashboard" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100 bg-slate-100">
+        <!-- Agregamos borde para que el active se note mejor -->
+        <button data-view="dashboard"
+          class="nav-btn w-full rounded-2xl border border-transparent px-3 py-2 pl-8 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 transition is-active">
           Dashboard
         </button>
-        <button data-view="appointments" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+        <button data-view="appointments"
+          class="nav-btn w-full rounded-2xl border border-transparent px-3 py-2 pl-8 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 transition">
           Agenda (Turnos)
         </button>
-        <button data-view="clients" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+        <button data-view="clients"
+          class="nav-btn w-full rounded-2xl border border-transparent px-3 py-2 pl-8 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 transition">
           Clientes
         </button>
-        <button data-view="cases" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+        <button data-view="cases"
+          class="nav-btn w-full rounded-2xl border border-transparent px-3 py-2 pl-8 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 transition">
           Casos
         </button>
-        <button data-view="documents" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+        <button data-view="documents"
+          class="nav-btn w-full rounded-2xl border border-transparent px-3 py-2 pl-8 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 transition">
           Documentos
         </button>
-        <button data-view="lawyers" class="nav-btn w-full rounded-xl px-3 py-2 text-left text-sm font-medium hover:bg-slate-100">
+        <button data-view="lawyers"
+          class="nav-btn w-full rounded-2xl border border-transparent px-3 py-2 pl-8 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 transition">
           Abogados
         </button>
       </nav>
 
-      <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-        <div class="text-xs font-semibold text-slate-600">Estado del sistema</div>
-        <div class="mt-2 space-y-2 text-xs text-slate-600">
-          <div class="flex items-center justify-between">
+      <div class="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-3">
+        <div class="px-1 text-xs font-semibold text-slate-700">Estado del sistema</div>
+
+        <div class="mt-3 space-y-2 text-xs text-slate-600">
+          <div class="flex items-center justify-between rounded-2xl bg-white px-3 py-2 border border-slate-200">
             <span>API</span>
-            <span class="font-medium" id="apiStatus">—</span>
+            <span class="font-medium text-slate-900" id="apiStatus">—</span>
           </div>
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between rounded-2xl bg-white px-3 py-2 border border-slate-200">
             <span>Base de datos</span>
-            <span class="font-medium" id="dbStatus">—</span>
+            <span class="font-medium text-slate-900" id="dbStatus">—</span>
           </div>
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between rounded-2xl bg-white px-3 py-2 border border-slate-200">
             <span>Última actividad</span>
-            <span class="font-medium" id="lastActivity">—</span>
+            <span class="font-medium text-slate-900" id="lastActivity">—</span>
           </div>
         </div>
-        <button id="btnHealth" class="mt-3 w-full rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 active:scale-[0.99]">
+
+        <button
+          id="btnHealth"
+          class="mt-3 w-full rounded-2xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 active:scale-[0.99] transition"
+        >
           Probar conexión
         </button>
       </div>
@@ -96,10 +145,10 @@
     <!-- Content -->
     <section class="space-y-4">
       <!-- Page header -->
-      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+      <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
         <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 class="text-lg font-semibold" id="viewTitle">Dashboard</h1>
+            <h1 class="text-lg font-semibold text-slate-900" id="viewTitle">Dashboard</h1>
             <p class="text-sm text-slate-600" id="viewSubtitle">Resumen general del estudio</p>
           </div>
 
@@ -109,14 +158,15 @@
                 id="searchInput"
                 type="text"
                 placeholder="Buscar (nombre, email, teléfono, título, etc.)"
-                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 pr-10 text-sm outline-none ring-slate-200 focus:ring-2 sm:w-[360px]"
+                class="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 pr-10 text-sm outline-none ring-slate-200 focus:ring-2 sm:w-[360px]"
               />
               <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">⌕</span>
             </div>
 
-            <select title="Filtro"
+            <select
+              title="Filtro"
               id="filterSelect"
-              class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2"
+              class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2"
             >
               <option value="">Filtro rápido</option>
               <option value="status:active">Status: active</option>
@@ -128,7 +178,7 @@
 
             <button
               id="btnNew"
-              class="rounded-xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500 active:scale-[0.99]"
+              class="rounded-2xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:scale-[0.99] transition"
             >
               + Nuevo
             </button>
@@ -137,40 +187,41 @@
 
         <!-- KPI row -->
         <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" id="kpis">
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <div class="rounded-3xl border border-slate-200 bg-slate-50 p-3">
             <div class="text-xs font-semibold text-slate-500">Clientes</div>
-            <div class="mt-1 text-2xl font-semibold" id="kpiClients">—</div>
+            <div class="mt-1 text-2xl font-semibold text-slate-900" id="kpiClients">—</div>
             <div class="mt-1 text-xs text-slate-600">Activos</div>
           </div>
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <div class="rounded-3xl border border-slate-200 bg-slate-50 p-3">
             <div class="text-xs font-semibold text-slate-500">Casos</div>
-            <div class="mt-1 text-2xl font-semibold" id="kpiCases">—</div>
+            <div class="mt-1 text-2xl font-semibold text-slate-900" id="kpiCases">—</div>
             <div class="mt-1 text-xs text-slate-600">En curso</div>
           </div>
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <div class="rounded-3xl border border-slate-200 bg-slate-50 p-3">
             <div class="text-xs font-semibold text-slate-500">Turnos</div>
-            <div class="mt-1 text-2xl font-semibold" id="kpiAppointments">—</div>
+            <div class="mt-1 text-2xl font-semibold text-slate-900" id="kpiAppointments">—</div>
             <div class="mt-1 text-xs text-slate-600">Próximos 7 días</div>
           </div>
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          <div class="rounded-3xl border border-slate-200 bg-slate-50 p-3">
             <div class="text-xs font-semibold text-slate-500">Documentos</div>
-            <div class="mt-1 text-2xl font-semibold" id="kpiDocuments">—</div>
+            <div class="mt-1 text-2xl font-semibold text-slate-900" id="kpiDocuments">—</div>
             <div class="mt-1 text-xs text-slate-600">Total</div>
           </div>
         </div>
       </div>
 
       <!-- Main card -->
-      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+      <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
         <!-- Toolbar for tables -->
         <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div class="flex items-center gap-2">
-            <div class="text-sm font-semibold" id="tableTitle">Actividad reciente</div>
+            <div class="text-sm font-semibold text-slate-900" id="tableTitle">Actividad reciente</div>
             <span class="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600" id="tableCount">—</span>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
-            <select title="Orden" id="sortSelect" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2">
+            <select title="Orden" id="sortSelect"
+              class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2">
               <option value="created_at:desc">Orden: más nuevo</option>
               <option value="created_at:asc">Orden: más viejo</option>
               <option value="full_name:asc">Nombre A–Z</option>
@@ -179,31 +230,33 @@
               <option value="start_at:desc">Turno: más lejano</option>
             </select>
 
-            <button id="btnRefresh" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 active:scale-[0.99]">
+            <button id="btnRefresh"
+              class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 active:scale-[0.99] transition">
               Actualizar
             </button>
           </div>
         </div>
 
         <!-- Loader -->
-        <div id="loader" class="mt-4 hidden rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+        <div id="loader" class="mt-4 hidden rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
           Cargando…
         </div>
 
         <!-- Empty state -->
-        <div id="emptyState" class="mt-4 hidden rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
-          <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-600">📄</div>
-          <div class="mt-3 text-sm font-semibold">Sin resultados</div>
+        <div id="emptyState" class="mt-4 hidden rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center">
+          <div class="mx-auto grid h-12 w-12 place-items-center rounded-3xl bg-slate-100 text-slate-600">📄</div>
+          <div class="mt-3 text-sm font-semibold text-slate-900">Sin resultados</div>
           <div class="mt-1 text-sm text-slate-600">Probá con otro filtro o agregá un nuevo registro.</div>
-          <button id="btnEmptyNew" class="mt-4 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+          <button id="btnEmptyNew"
+            class="mt-4 rounded-2xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition">
             + Crear
           </button>
         </div>
 
         <!-- Table -->
-        <div class="mt-4 overflow-auto rounded-2xl border border-slate-200">
+        <div class="mt-4 overflow-auto rounded-3xl border border-slate-200 soft-scroll">
           <table class="min-w-full text-left text-sm">
-            <thead class="bg-slate-50 text-xs text-slate-600">
+            <thead class="sticky top-0 bg-slate-50 text-xs text-slate-600">
               <tr id="tableHead">
                 <th class="px-4 py-3 font-semibold">Campo</th>
                 <th class="px-4 py-3 font-semibold">Detalle</th>
@@ -212,6 +265,7 @@
                 <th class="px-4 py-3 font-semibold text-right">Acciones</th>
               </tr>
             </thead>
+
             <tbody id="tableBody" class="divide-y divide-slate-200 bg-white">
               <!-- rows injected by JS -->
             </tbody>
@@ -222,10 +276,14 @@
         <div class="mt-4 flex items-center justify-between gap-2">
           <div class="text-xs text-slate-600" id="pageInfo">—</div>
           <div class="flex items-center gap-2">
-            <button id="btnPrev" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-50" disabled>
+            <button id="btnPrev"
+              class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-50 transition"
+              disabled>
               ← Anterior
             </button>
-            <button id="btnNext" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-50" disabled>
+            <button id="btnNext"
+              class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-50 transition"
+              disabled>
               Siguiente →
             </button>
           </div>
@@ -235,39 +293,48 @@
   </main>
 
   <!-- Modal -->
-  <div id="modal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/40"></div>
+  <div id="modal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+    <div class="absolute inset-0 bg-slate-950/50 backdrop-blur-sm"></div>
+
     <div class="absolute inset-0 grid place-items-center p-4">
-      <div class="w-full max-w-[720px] rounded-2xl border border-slate-200 bg-white shadow-xl">
-        <div class="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+      <div class="modal-enter w-full max-w-[720px] rounded-3xl border border-slate-200 bg-white shadow-2xl">
+        <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
           <div>
-            <div class="text-sm font-semibold" id="modalTitle">Nuevo</div>
+            <div class="text-sm font-semibold text-slate-900" id="modalTitle">Nuevo</div>
             <div class="text-xs text-slate-600" id="modalSubtitle">Completar los campos</div>
           </div>
-          <button id="btnModalClose" class="rounded-xl px-3 py-2 text-sm font-medium hover:bg-slate-100">Cerrar</button>
+
+          <button id="btnModalClose"
+            class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 transition"
+            aria-label="Cerrar">
+            ✕
+          </button>
         </div>
 
-        <form id="modalForm" class="p-4">
+        <form id="modalForm" class="p-5">
           <div id="modalFields" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <!-- injected by JS -->
           </div>
 
-          <div class="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <button id="btnModalDelete" type="button" class="hidden rounded-xl border border-rose-200 bg-white px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50">
+          <div class="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <button id="btnModalDelete" type="button"
+              class="hidden rounded-2xl border border-rose-200 bg-white px-3 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition">
               Eliminar
             </button>
 
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
-              <button type="button" id="btnModalCancel" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100">
+              <button type="button" id="btnModalCancel"
+                class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 transition">
                 Cancelar
               </button>
-              <button type="submit" id="btnModalSave" class="rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">
+              <button type="submit" id="btnModalSave"
+                class="rounded-2xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition">
                 Guardar
               </button>
             </div>
           </div>
 
-          <div id="modalError" class="mt-3 hidden rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"></div>
+          <div id="modalError" class="mt-3 hidden rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"></div>
         </form>
       </div>
     </div>
@@ -283,14 +350,16 @@
 
     function setActiveNav(view) {
       $$(".nav-btn").forEach(btn => {
-        btn.classList.toggle("bg-slate-100", btn.dataset.view === view);
+        const active = btn.dataset.view === view;
+        btn.classList.toggle("is-active", active);
+        btn.classList.toggle("bg-slate-100", false); // por compatibilidad si quedó algo viejo
       });
     }
 
     function toast(message, type = "info") {
       const wrap = $("#toasts");
       const el = document.createElement("div");
-      const base = "rounded-xl border px-3 py-2 text-sm shadow bg-white";
+      const base = "rounded-2xl border px-3 py-2 text-sm shadow bg-white";
       const color =
         type === "success" ? "border-emerald-200" :
         type === "error" ? "border-rose-200" :
@@ -316,43 +385,41 @@
       $("#modalError").classList.add("hidden");
       $("#btnModalDelete").classList.toggle("hidden", !showDelete);
       $("#modal").classList.remove("hidden");
+      $("#modal").setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
     }
 
     function closeModal() {
       $("#modal").classList.add("hidden");
+      $("#modal").setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
     }
 
     // events
     $("#btnModalClose").addEventListener("click", closeModal);
     $("#btnModalCancel").addEventListener("click", closeModal);
+
     $("#modal").addEventListener("click", (e) => {
-      if (e.target === $("#modal").firstElementChild) closeModal();
+      // click afuera del dialog
+      if (e.target === $("#modal").children[0]) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !$("#modal").classList.contains("hidden")) closeModal();
     });
 
     $$(".nav-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const view = btn.dataset.view;
         setActiveNav(view);
-        // Acá tu main.js debería escuchar cambios de view:
         window.dispatchEvent(new CustomEvent("admin:view", { detail: { view } }));
       });
     });
 
-    $("#btnNew").addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("admin:new"));
-    });
-
-    $("#btnEmptyNew").addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("admin:new"));
-    });
-
-    $("#btnRefresh").addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("admin:refresh"));
-    });
-
-    $("#btnHealth").addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("admin:health"));
-    });
+    $("#btnNew").addEventListener("click", () => window.dispatchEvent(new CustomEvent("admin:new")));
+    $("#btnEmptyNew").addEventListener("click", () => window.dispatchEvent(new CustomEvent("admin:new")));
+    $("#btnRefresh").addEventListener("click", () => window.dispatchEvent(new CustomEvent("admin:refresh")));
+    $("#btnHealth").addEventListener("click", () => window.dispatchEvent(new CustomEvent("admin:health")));
 
     $("#searchInput").addEventListener("input", (e) => {
       window.dispatchEvent(new CustomEvent("admin:search", { detail: { q: e.target.value } }));
@@ -391,7 +458,7 @@
       },
       setKpis({ clients, cases, appointments, documents }) {
         if (clients != null) $("#kpiClients").textContent = String(clients);
-        if (cases != null) $("#kpiCases").textContent = String(cases);
+        if (cases !=null) $("#kpiCases").textContent = String(cases);
         if (appointments != null) $("#kpiAppointments").textContent = String(appointments);
         if (documents != null) $("#kpiDocuments").textContent = String(documents);
       },
@@ -409,11 +476,10 @@
         $("#btnPrev").disabled = !canPrev;
         $("#btnNext").disabled = !canNext;
       },
-      showLoader,
-      showEmpty,
     };
 
     // Default view
+    setActiveNav("dashboard");
     window.dispatchEvent(new CustomEvent("admin:view", { detail: { view: "dashboard" } }));
   </script>
 

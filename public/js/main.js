@@ -600,18 +600,24 @@
       fieldsHtml: `
       <label>
         <div class="text-xs font-semibold">Nombre</div>
-        <input id="c_name" class="input" />
+        <input id="c_name" class="input" placeholder="Nombre completo" />
       </label>
 
       <label>
         <div class="text-xs font-semibold">Email</div>
-        <input id="c_email" class="input" />
+        <input id="c_email" class="input" placeholder="Email" />
       </label>
 
       <label>
         <div class="text-xs font-semibold">Teléfono</div>
-        <input id="c_phone" class="input" />
+        <input id="c_phone" class="input" placeholder="Teléfono" />
       </label>
+
+      <label>
+        <div class="text-xs font-semibold">Número de DNI</div>
+        <input id="c_dni" class="input" placeholder="DNI" />
+      </label>
+
     `,
     });
 
@@ -624,6 +630,7 @@
         full_name: document.getElementById("c_name").value,
         email: document.getElementById("c_email").value,
         phone: document.getElementById("c_phone").value,
+        dni: document.getElementById("c_dni").value,
       };
 
       try {
@@ -690,6 +697,12 @@
             <div class="mb-1 text-xs font-semibold">Teléfono</div>
             <input id="f_phone" value="${client.phone || ""}"
               class="w-full rounded-xl border px-3 py-2" />
+          </label>
+
+          <label>
+           <div class="text-xs font-semibold">Número de DNI</div>
+           <input id="f_dni" value="${client.dni || ""}"
+           class="w-full rounded-xl border px-3 py-2" />
           </label>
         `
         });

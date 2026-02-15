@@ -6,17 +6,35 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Acceso | Panel Abogados</title>
   <link rel="stylesheet" href="/assets/app.css" />
+
+  <style>
+    /* Fondo clásico (opcional): poné tu imagen donde dice url(...) */
+    .login-bg {
+      background:
+        radial-gradient(900px 500px at 15% 10%, rgba(99,102,241,.10), transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, rgba(245,158,11,.12), transparent 55%),
+        linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    .login-bg.has-photo {
+      background:
+        linear-gradient(180deg, rgba(2,6,23,.60) 0%, rgba(2,6,23,.70) 100%),
+        url("/assets/login-bg.jpg"); /* <- opcional: si no tenés, borrá "has-photo" del body */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="login-bg has-photo text-slate-800 antialiased min-h-screen flex flex-col">
 
   <!-- Navbar -->
-  <header class="border-b border-slate-200 bg-white sticky top-0 z-40">
+  <header class="border-b border-slate-200 bg-white/85 backdrop-blur sticky top-0 z-40">
     <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-4">
 
-      <a href="/" class="flex items-center gap-3 hover:opacity-90 transition">
-        <div class="h-9 w-9 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center">
-          <span class="text-amber-700 font-semibold">JL</span>
+      <a href="/" class="flex items-center gap-3 hover:opacity-95 transition">
+        <div class="h-9 w-9 rounded-2xl bg-amber-100 border border-amber-200 shadow-sm flex items-center justify-center">
+          <span class="text-amber-800 font-semibold">JL</span>
         </div>
         <div class="leading-tight">
           <div class="font-semibold text-slate-900">Justicia &amp; Ley</div>
@@ -25,7 +43,7 @@
       </a>
 
       <a href="/"
-        class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition">
         ← Volver al sitio
       </a>
 
@@ -33,87 +51,203 @@
   </header>
 
   <!-- Login container -->
-  <main class="flex-1 flex items-center justify-center px-4">
-    <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white shadow-sm p-7">
+  <main class="flex-1 flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-md">
 
-      <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center">
-          <span class="text-amber-700 font-semibold">JL</span>
+      <!-- Card -->
+      <div class="rounded-[28px] border border-white/35 bg-white/90 backdrop-blur shadow-xl p-7">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="h-11 w-11 rounded-2xl bg-amber-100 border border-amber-200 shadow-sm flex items-center justify-center">
+              <span class="text-amber-800 font-semibold">JL</span>
+            </div>
+            <div>
+              <div class="font-semibold text-slate-900 text-lg">Panel de Abogados</div>
+              <div class="text-sm text-slate-500">Acceso seguro</div>
+            </div>
+          </div>
+
+          <span class="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
+            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+            SSL / Sesión
+          </span>
         </div>
-        <div>
-          <div class="font-semibold text-slate-900">Panel de Abogados</div>
-          <div class="text-sm text-slate-500">Acceso seguro</div>
+
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          Ingresá con tu email y contraseña. Si olvidaste tus credenciales, contactá al administrador del estudio.
         </div>
+
+        <form id="loginForm" class="mt-6 space-y-4" novalidate>
+          <!-- Email -->
+          <div>
+            <label for="email" class="text-xs font-medium text-slate-600">Email</label>
+            <div class="mt-1 relative">
+              <input
+                id="email"
+                title="email"
+                name="email"
+                type="email"
+                autocomplete="username"
+                required
+                placeholder="tu@email.com"
+                class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 outline-none
+                       focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              />
+              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">✉️</span>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div>
+            <label for="password" class="text-xs font-medium text-slate-600">Contraseña</label>
+            <div class="mt-1 relative">
+              <input
+                id="password"
+                title="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+                placeholder="••••••••"
+                class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 pr-12 outline-none
+                       focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+              />
+              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔒</span>
+
+              <button
+                type="button"
+                id="btnTogglePass"
+                class="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+                aria-label="Mostrar u ocultar contraseña"
+              >
+                Ver
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <button
+            id="btnSubmit"
+            type="submit"
+            class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-white font-semibold hover:bg-slate-800 active:scale-[0.99] transition"
+          >
+            Ingresar
+          </button>
+
+          <!-- Message -->
+          <div
+            id="msgWrap"
+            class="hidden rounded-2xl border px-3 py-2 text-sm"
+            role="status"
+            aria-live="polite"
+          >
+            <p id="msg"></p>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-500">
+            <span>© <span id="year"></span> Justicia &amp; Ley</span>
+            <span class="text-slate-400">Panel interno</span>
+          </div>
+        </form>
       </div>
 
-      <form id="loginForm" class="mt-6 space-y-4">
-        <div>
-          <label class="text-xs text-slate-600">Email</label>
-          <input title="email" name="email" type="email" required class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-            focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
-        </div>
-
-        <div>
-          <label class="text-xs text-slate-600">Contraseña</label>
-          <input title="password" name="password" type="password" required class="mt-1 w-full rounded-xl bg-white border border-slate-300 px-3 py-2 outline-none
-            focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
-        </div>
-
-        <button type="submit"
-          class="w-full rounded-xl bg-blue-700 px-4 py-3 text-white font-semibold hover:bg-blue-600 transition">
-          Ingresar
-        </button>
-
-        <p id="msg" class="text-sm text-slate-600"></p>
-      </form>
-
-      <div class="mt-6 text-xs text-slate-500 text-center">
-        © <span id="year"></span> Justicia &amp; Ley
+      <!-- Footer mini -->
+      <div class="mt-4 text-center text-xs text-slate-500">
+        Este acceso está destinado únicamente a personal autorizado.
       </div>
     </div>
   </main>
 
   <script>
-  document.getElementById("year").textContent = new Date().getFullYear();
+    // Año
+    document.getElementById("year").textContent = new Date().getFullYear();
 
-  const form = document.getElementById("loginForm");
-  const msg = document.getElementById("msg");
+    // Toggle password
+    const btnToggle = document.getElementById("btnTogglePass");
+    const passwordInput = document.getElementById("password");
+    btnToggle.addEventListener("click", () => {
+      const isPass = passwordInput.type === "password";
+      passwordInput.type = isPass ? "text" : "password";
+      btnToggle.textContent = isPass ? "Ocultar" : "Ver";
+    });
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    // Autofill DEV (solo localhost)
+    if (window.location.hostname === "localhost") {
+      const env = {
+        SEED_ADMIN_EMAIL: "admin@estudio.com",
+        SEED_ADMIN_PASSWORD: "CambiarEsto123!",
+      };
+      const form = document.getElementById("loginForm");
+      form.email.value = env.SEED_ADMIN_EMAIL;
+      form.password.value = env.SEED_ADMIN_PASSWORD;
+    }
+  </script>
 
-    const email = form.email.value.trim();
-    const password = form.password.value;
+  <script>
+    const form = document.getElementById("loginForm");
+    const msgWrap = document.getElementById("msgWrap");
+    const msg = document.getElementById("msg");
+    const btnSubmit = document.getElementById("btnSubmit");
 
-    msg.textContent = "Ingresando...";
-    msg.className = "text-sm text-slate-500";
+    function setMsg(text, type = "info") {
+      msgWrap.classList.remove("hidden");
+      msg.textContent = text;
 
-    try {
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
+      msgWrap.className = "rounded-2xl border px-3 py-2 text-sm";
+      if (type === "error") {
+        msgWrap.classList.add("border-rose-200", "bg-rose-50", "text-rose-700");
+      } else if (type === "success") {
+        msgWrap.classList.add("border-emerald-200", "bg-emerald-50", "text-emerald-700");
+      } else {
+        msgWrap.classList.add("border-slate-200", "bg-slate-50", "text-slate-700");
+      }
+    }
 
-      const data = await res.json().catch(() => ({}));
+    function setLoading(loading) {
+      btnSubmit.disabled = loading;
+      btnSubmit.classList.toggle("opacity-80", loading);
+      btnSubmit.textContent = loading ? "Ingresando..." : "Ingresar";
+    }
 
-      if (!res.ok || !data.ok) {
-        msg.textContent = data.error || "Credenciales inválidas";
-        msg.className = "text-sm text-red-600";
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      // Validación básica rápida
+      if (!email || !password) {
+        setMsg("Completá email y contraseña.", "error");
         return;
       }
 
-      // Login exitoso
-      window.location.href = "/admin";
-    } catch (err) {
-      msg.textContent = "Error de conexión con el servidor";
-      msg.className = "text-sm text-red-600";
-    }
-  });
-</script>
+      setLoading(true);
+      setMsg("Verificando credenciales…", "info");
 
+      try {
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        });
 
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.ok) {
+          setLoading(false);
+          setMsg(data.error || "Credenciales inválidas", "error");
+          return;
+        }
+
+        setMsg("Acceso concedido. Redirigiendo…", "success");
+        window.location.href = "/admin";
+      } catch (err) {
+        setLoading(false);
+        setMsg("Error de conexión con el servidor", "error");
+      }
+    });
+  </script>
 </body>
 
 </html>
