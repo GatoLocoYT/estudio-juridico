@@ -107,3 +107,16 @@
   position: relative;
   z-index: 1;
 }
+
+#btnRegister {
+  background-color: #6366f1;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#btnRegister:hover {
+  background-color: #4f4f8f;
+}

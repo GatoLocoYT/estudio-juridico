@@ -8,20 +8,76 @@
   <link rel="stylesheet" href="/assets/app.css" />
 
   <style>
-    /* Fondo clásico (opcional): poné tu imagen donde dice url(...) */
+    html,
+    body {
+      min-height: 100%;
+    }
+
     .login-bg {
+      position: relative;
+      isolation: isolate;
+      /* asegura z-index correcto */
+    }
+
+    /* Fondo SIEMPRE full-screen */
+    .login-bg::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+
       background:
-        radial-gradient(900px 500px at 15% 10%, rgba(99,102,241,.10), transparent 60%),
-        radial-gradient(900px 500px at 85% 0%, rgba(245,158,11,.12), transparent 55%),
+        radial-gradient(900px 500px at 15% 10%, rgba(99, 102, 241, .10), transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, rgba(245, 158, 11, .12), transparent 55%),
         linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     }
-    .login-bg.has-photo {
+
+    /* Si hay foto, la ponemos full-screen también */
+    .login-bg.has-photo::before {
       background:
-        linear-gradient(180deg, rgba(2,6,23,.60) 0%, rgba(2,6,23,.70) 100%),
-        url("/assets/login-bg.jpg"); /* <- opcional: si no tenés, borrá "has-photo" del body */
+        linear-gradient(180deg, rgba(2, 6, 23, .60) 0%, rgba(2, 6, 23, .70) 100%),
+        url("/assets/login-bg.jpg");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+    }
+
+
+    /* ============================
+       Flip card (login <-> register)
+       ============================ */
+
+    .flip-container {
+      perspective: 1200px;
+    }
+
+    .flipper {
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 700ms cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .flip-container.flipped .flipper {
+      transform: rotateY(180deg);
+    }
+
+    .flip-face {
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .flip-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      .flipper {
+        transition: none;
+      }
     }
   </style>
 </head>
@@ -33,7 +89,8 @@
     <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-4">
 
       <a href="/" class="flex items-center gap-3 hover:opacity-95 transition">
-        <div class="h-9 w-9 rounded-2xl bg-amber-100 border border-amber-200 shadow-sm flex items-center justify-center">
+        <div
+          class="h-9 w-9 rounded-2xl bg-amber-100 border border-amber-200 shadow-sm flex items-center justify-center">
           <span class="text-amber-800 font-semibold">JL</span>
         </div>
         <div class="leading-tight">
@@ -50,105 +107,194 @@
     </div>
   </header>
 
-  <!-- Login container -->
+  <!-- Container -->
   <main class="flex-1 flex items-center justify-center px-4 py-10">
     <div class="w-full max-w-md">
 
-      <!-- Card -->
-      <div class="rounded-[28px] border border-white/35 bg-white/90 backdrop-blur shadow-xl p-7">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div class="h-11 w-11 rounded-2xl bg-amber-100 border border-amber-200 shadow-sm flex items-center justify-center">
-              <span class="text-amber-800 font-semibold">JL</span>
-            </div>
-            <div>
-              <div class="font-semibold text-slate-900 text-lg">Panel de Abogados</div>
-              <div class="text-sm text-slate-500">Acceso seguro</div>
+      <!-- Flip Card wrapper -->
+      <div id="flipCard" class="flip-container">
+
+        <div class="flipper">
+
+          <!-- ======================
+               FRONT: LOGIN
+               ====================== -->
+          <div class="flip-face">
+            <div class="rounded-[28px] border border-white/35 bg-white/90 backdrop-blur shadow-xl p-7">
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="h-11 w-11 rounded-2xl bg-amber-100 border border-amber-200 shadow-sm flex items-center justify-center">
+                    <span class="text-amber-800 font-semibold">JL</span>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-900 text-lg">Panel de Abogados</div>
+                    <div class="text-sm text-slate-500">Acceso seguro</div>
+                  </div>
+                </div>
+
+                <span
+                  class="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
+                  <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                  SSL / Sesión
+                </span>
+              </div>
+
+              <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                Ingresá con tu email y contraseña.
+              </div>
+
+              <form id="loginForm" class="mt-6 space-y-4" novalidate>
+                <!-- Email -->
+                <div>
+                  <label for="email" class="text-xs font-medium text-slate-600">Email</label>
+                  <div class="mt-1 relative">
+                    <input id="email" name="email" type="email" autocomplete="username" required
+                      placeholder="tu@email.com" class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 outline-none
+                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">✉️</span>
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                  <label for="password" class="text-xs font-medium text-slate-600">Contraseña</label>
+                  <div class="mt-1 relative">
+                    <input id="password" name="password" type="password" autocomplete="current-password" required
+                      placeholder="••••••••" class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 pr-12 outline-none
+                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔒</span>
+
+                    <button type="button" id="btnTogglePass"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+                      aria-label="Mostrar u ocultar contraseña">
+                      Ver
+                    </button>
+                  </div>
+                </div>
+
+                <button id="btnSubmit" type="submit"
+                  class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-white font-semibold hover:bg-slate-800 active:scale-[0.99] transition">
+                  Ingresar
+                </button>
+
+                <div id="msgWrap" class="hidden rounded-2xl border px-3 py-2 text-sm" role="status" aria-live="polite">
+                  <p id="msg"></p>
+                </div>
+
+                <!-- Switch -->
+                <p class="text-center text-sm text-slate-600">
+                  ¿No tenés cuenta?
+                  <button type="button" onclick="toggleFlip()" class="text-indigo-700 font-semibold hover:underline">
+                    Crear cuenta
+                  </button>
+                </p>
+
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                  <span>© <span id="year"></span> Justicia &amp; Ley</span>
+                  <span class="text-slate-400">Panel interno</span>
+                </div>
+              </form>
             </div>
           </div>
 
-          <span class="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
-            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-            SSL / Sesión
-          </span>
+          <!-- ======================
+               BACK: REGISTER
+               ====================== -->
+          <div class="flip-face flip-back">
+            <div class="rounded-[28px] border border-white/35 bg-white/90 backdrop-blur shadow-xl p-7">
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="h-11 w-11 rounded-2xl bg-indigo-100 border border-indigo-200 shadow-sm flex items-center justify-center">
+                    <span class="text-indigo-800 font-semibold">JL</span>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-slate-900 text-lg">Crear cuenta</div>
+                    <div class="text-sm text-slate-500">Registro interno</div>
+                  </div>
+                </div>
+
+                <span
+                  class="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600">
+                  <span class="h-2 w-2 rounded-full bg-indigo-500"></span>
+                  Alta
+                </span>
+              </div>
+
+              <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                Creá tu usuario para acceder al panel.
+              </div>
+
+              <form id="registerForm" class="mt-6 space-y-4" novalidate>
+                <!-- Nombre -->
+                <div>
+                  <label for="regName" class="text-xs font-medium text-slate-600">Nombre</label>
+                  <div class="mt-1 relative">
+                    <input id="regName" name="name" type="text" required placeholder="Tu nombre" class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 outline-none
+                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                    <span
+                      class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🧑‍⚖️</span>
+                  </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label for="regEmail" class="text-xs font-medium text-slate-600">Email</label>
+                  <div class="mt-1 relative">
+                    <input id="regEmail" name="email" type="email" autocomplete="email" required
+                      placeholder="tu@email.com" class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 outline-none
+                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">✉️</span>
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                  <label for="regPass" class="text-xs font-medium text-slate-600">Contraseña</label>
+                  <div class="mt-1 relative">
+                    <input id="regPass" name="password" type="password" autocomplete="new-password" required
+                      placeholder="••••••••" class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 outline-none
+                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔒</span>
+                  </div>
+                </div>
+
+                <!-- Repeat -->
+                <div>
+                  <label for="regPass2" class="text-xs font-medium text-slate-600">Repetir contraseña</label>
+                  <div class="mt-1 relative">
+                    <input id="regPass2" name="password2" type="password" autocomplete="new-password" required
+                      placeholder="••••••••" class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 outline-none
+                             focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔁</span>
+                  </div>
+                </div>
+
+                <button id="btnRegister" type="submit" class="w-full rounded-2xl bg-indigo-700 px-4 py-3 text-white font-semibold
+         hover:bg-indigo-600 active:scale-[0.99] transition
+         disabled:bg-slate-300 disabled:text-slate-500 disabled:hover:bg-slate-300 disabled:active:scale-100">
+                  Registrarme
+                </button>
+
+
+                <div id="regMsgWrap" class="hidden rounded-2xl border px-3 py-2 text-sm" role="status"
+                  aria-live="polite">
+                  <p id="regMsg"></p>
+                </div>
+
+                <!-- Switch -->
+                <p class="text-center text-sm text-slate-600">
+                  ¿Ya tenés cuenta?
+                  <button type="button" onclick="toggleFlip()" class="text-indigo-700 font-semibold hover:underline">
+                    Iniciar sesión
+                  </button>
+                </p>
+              </form>
+            </div>
+          </div>
+
         </div>
-
-        <div class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-          Ingresá con tu email y contraseña. Si olvidaste tus credenciales, contactá al administrador del estudio.
-        </div>
-
-        <form id="loginForm" class="mt-6 space-y-4" novalidate>
-          <!-- Email -->
-          <div>
-            <label for="email" class="text-xs font-medium text-slate-600">Email</label>
-            <div class="mt-1 relative">
-              <input
-                id="email"
-                title="email"
-                name="email"
-                type="email"
-                autocomplete="username"
-                required
-                placeholder="tu@email.com"
-                class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 outline-none
-                       focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-              />
-              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">✉️</span>
-            </div>
-          </div>
-
-          <!-- Password -->
-          <div>
-            <label for="password" class="text-xs font-medium text-slate-600">Contraseña</label>
-            <div class="mt-1 relative">
-              <input
-                id="password"
-                title="password"
-                name="password"
-                type="password"
-                autocomplete="current-password"
-                required
-                placeholder="••••••••"
-                class="w-full rounded-2xl bg-white border border-slate-300 px-3 py-2.5 pl-10 pr-12 outline-none
-                       focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-              />
-              <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔒</span>
-
-              <button
-                type="button"
-                id="btnTogglePass"
-                class="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
-                aria-label="Mostrar u ocultar contraseña"
-              >
-                Ver
-              </button>
-            </div>
-          </div>
-
-          <!-- Submit -->
-          <button
-            id="btnSubmit"
-            type="submit"
-            class="w-full rounded-2xl bg-slate-900 px-4 py-3 text-white font-semibold hover:bg-slate-800 active:scale-[0.99] transition"
-          >
-            Ingresar
-          </button>
-
-          <!-- Message -->
-          <div
-            id="msgWrap"
-            class="hidden rounded-2xl border px-3 py-2 text-sm"
-            role="status"
-            aria-live="polite"
-          >
-            <p id="msg"></p>
-          </div>
-
-          <div class="flex items-center justify-between text-xs text-slate-500">
-            <span>© <span id="year"></span> Justicia &amp; Ley</span>
-            <span class="text-slate-400">Panel interno</span>
-          </div>
-        </form>
       </div>
 
       <!-- Footer mini -->
@@ -162,7 +308,15 @@
     // Año
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Toggle password
+    // Flip
+    function toggleFlip() {
+      document.getElementById("flipCard").classList.toggle("flipped");
+      // opcional: limpiar mensajes al cambiar
+      hideMsg();
+      hideRegMsg();
+    }
+
+    // Toggle password login
     const btnToggle = document.getElementById("btnTogglePass");
     const passwordInput = document.getElementById("password");
     btnToggle.addEventListener("click", () => {
@@ -181,9 +335,8 @@
       form.email.value = env.SEED_ADMIN_EMAIL;
       form.password.value = env.SEED_ADMIN_PASSWORD;
     }
-  </script>
 
-  <script>
+    // ====== Mensajes login ======
     const form = document.getElementById("loginForm");
     const msgWrap = document.getElementById("msgWrap");
     const msg = document.getElementById("msg");
@@ -202,6 +355,10 @@
         msgWrap.classList.add("border-slate-200", "bg-slate-50", "text-slate-700");
       }
     }
+    function hideMsg() {
+      msgWrap.classList.add("hidden");
+      msg.textContent = "";
+    }
 
     function setLoading(loading) {
       btnSubmit.disabled = loading;
@@ -215,7 +372,6 @@
       const email = form.email.value.trim();
       const password = form.password.value;
 
-      // Validación básica rápida
       if (!email || !password) {
         setMsg("Completá email y contraseña.", "error");
         return;
@@ -235,11 +391,11 @@
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok || !data.ok) {
+          // Nota: Cambiar el success a error al pasar a producción, esto es solo para evitar bloqueos por CORS o errores temporales durante el desarrollo.
+          // Quitar comentarios:
           // setLoading(false);
-          // setMsg(data.error || "Credenciales inválidas", "error");
+          // setMsg(data.error || res.statusText, "error");
           // return;
-
-          // Nota: Voy a permitir el acceso aunque haya un error, para evitar dejar a nadie afuera en caso de que el servidor tenga un problema momentáneo. El mensaje de error se mostrará en la consola, pero el usuario podrá intentar ingresar nuevamente sin quedarse bloqueado.
           console.error("Error en login:", data.error || res.statusText);
           setMsg("Error de conexión, pero intentando acceder de todos modos…", "success");
           window.location.href = "/admin";
@@ -251,6 +407,86 @@
       } catch (err) {
         setLoading(false);
         setMsg("Error de conexión con el servidor", "error");
+      }
+    });
+
+    // ====== Registro (solo UI) ======
+    const regForm = document.getElementById("registerForm");
+    const regMsgWrap = document.getElementById("regMsgWrap");
+    const regMsg = document.getElementById("regMsg");
+    const btnRegister = document.getElementById("btnRegister");
+
+    function setRegMsg(text, type = "info") {
+      regMsgWrap.classList.remove("hidden");
+      regMsg.textContent = text;
+
+      regMsgWrap.className = "rounded-2xl border px-3 py-2 text-sm";
+      if (type === "error") {
+        regMsgWrap.classList.add("border-rose-200", "bg-rose-50", "text-rose-700");
+      } else if (type === "success") {
+        regMsgWrap.classList.add("border-emerald-200", "bg-emerald-50", "text-emerald-700");
+      } else {
+        regMsgWrap.classList.add("border-slate-200", "bg-slate-50", "text-slate-700");
+      }
+    }
+    function hideRegMsg() {
+      regMsgWrap.classList.add("hidden");
+      regMsg.textContent = "";
+    }
+
+    function setRegLoading(loading) {
+      btnRegister.disabled = loading;
+      btnRegister.classList.toggle("opacity-80", loading);
+      btnRegister.textContent = loading ? "Creando..." : "Registrarme";
+    }
+
+    regForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nombre = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const pass = document.getElementById("regPass").value;
+      const pass2 = document.getElementById("regPass2").value;
+
+      if (!nombre || !email || !pass || !pass2) {
+        setRegMsg("Completá todos los campos.", "error");
+        return;
+      }
+      if (pass !== pass2) {
+        setRegMsg("Las contraseñas no coinciden.", "error");
+        return;
+      }
+
+      // Si todavía no conectás endpoint, dejalo como demo:
+      // setRegMsg("Cuenta creada (demo). Volviendo a login…", "success"); toggleFlip(); return;
+
+      setRegLoading(true);
+      setRegMsg("Creando cuenta…", "info");
+
+      try {
+        const res = await fetch("/api/admin/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ nombre, email, password: pass }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.ok) {
+          setRegLoading(false);
+          setRegMsg(data.error || "No se pudo crear la cuenta.", "error");
+          return;
+        }
+
+        setRegMsg("Cuenta creada. Volviendo a login…", "success");
+        setTimeout(() => {
+          setRegLoading(false);
+          toggleFlip();
+        }, 700);
+      } catch (err) {
+        setRegLoading(false);
+        setRegMsg("Error de conexión con el servidor.", "error");
       }
     });
   </script>

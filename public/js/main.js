@@ -20,7 +20,7 @@
   // Config
   // =========================
   const API = {
-    dashboard: "/api/dashboard", // opcional; si no existe, hacemos fallback
+    dashboard: "/api/admin/dashboard", // opcional; si no existe, hacemos fallback
     clients: "/api/clients",
     cases: "/api/cases",
     documents: "/api/documents",
