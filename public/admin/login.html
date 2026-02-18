@@ -393,13 +393,13 @@
         if (!res.ok || !data.ok) {
           // Nota: Cambiar el success a error al pasar a producción, esto es solo para evitar bloqueos por CORS o errores temporales durante el desarrollo.
           // Quitar comentarios:
-          // setLoading(false);
-          // setMsg(data.error || res.statusText, "error");
-          // return;
-          console.error("Error en login:", data.error || res.statusText);
-          setMsg("Error de conexión, pero intentando acceder de todos modos…", "success");
-          window.location.href = "/admin";
+          setLoading(false);
+          setMsg(data.error || res.statusText, "error");
           return;
+          // console.error("Error en login:", data.error || res.statusText);
+          // setMsg("Error de conexión, pero intentando acceder de todos modos…", "success");
+          // window.location.href = "/admin";
+          // return;
         }
 
         setMsg("Acceso concedido. Redirigiendo…", "success");
