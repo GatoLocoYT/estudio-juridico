@@ -95,18 +95,22 @@ router.get(
       const appointments = db.prepare("SELECT COUNT(*) as n FROM appointments").get().n;
       const documents = db.prepare("SELECT COUNT(*) as n FROM documents").get().n;
 
-      // Actividad reciente (ejemplo simple)
-      const recentActivity = db.prepare(`
-        SELECT
-          'case' as type,
-          title,
-          status,
-          updated_at as at,
-          id
-        FROM cases
-        ORDER BY updated_at DESC
-        LIMIT 10
-      `).all();
+      const upcoming = db.prepare(`
+  SELECT
+    a.id,
+    a.start_at, a.end_at, a.status, a.channel, a.title,
+    cl.full_name as client_name,
+    lw.full_name as lawyer_name
+  FROM appointments a
+  JOIN clients cl ON cl.id = a.client_id AND cl.deleted_at IS NULL
+  LEFT JOIN lawyers lw ON lw.id = a.lawyer_id AND lw.deleted_at IS NULL
+  WHERE a.deleted_at IS NULL
+    AND a.start_at >= datetime('now')
+    AND a.status IN ('scheduled','confirmed')
+  ORDER BY a.start_at ASC
+  LIMIT 10
+`).all();
+
 
       res.json({
         ok: true,
@@ -116,7 +120,7 @@ router.get(
           appointments,
           documents,
         },
-        recentActivity,
+        recentAppointments: upcoming,
       });
 
     } catch (err) {

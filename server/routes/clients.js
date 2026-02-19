@@ -191,6 +191,57 @@ router.put("/:id", requireAdmin, (req, res) => {
 
   return res.json({ ok: true });
 });
+// Cambiar SOLO el estado (acción rápida para dashboard)
+router.put("/:id/status", requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return apiError(res, 400, "VALIDATION_ERROR", "Invalid id");
+
+  const status = trimOrNull(req.body.status);
+  if (!["active", "inactive", "prospect"].includes(status)) {
+    return apiError(res, 400, "VALIDATION_ERROR", "Invalid status", { field: "status" });
+  }
+
+  const current = db()
+    .prepare(`SELECT id FROM clients WHERE id = ? AND deleted_at IS NULL`)
+    .get(id);
+  if (!mustExistOr404(res, current, "client")) return;
+
+  db()
+    .prepare(`
+      UPDATE clients
+      SET status = ?,
+          updated_at = datetime('now')
+      WHERE id = ? AND deleted_at IS NULL
+    `)
+    .run(status, id);
+
+  return res.json({ ok: true });
+});
+
+// Nota rápida del cliente (para dashboard)
+router.put("/:id/notes", requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return apiError(res, 400, "VALIDATION_ERROR", "Invalid id");
+
+  const notes = trimOrNull(req.body.notes);
+
+  const current = db()
+    .prepare(`SELECT id FROM clients WHERE id = ? AND deleted_at IS NULL`)
+    .get(id);
+  if (!mustExistOr404(res, current, "client")) return;
+
+  db()
+    .prepare(`
+      UPDATE clients
+      SET notes = ?,
+          updated_at = datetime('now')
+      WHERE id = ? AND deleted_at IS NULL
+    `)
+    .run(notes, id);
+
+  return res.json({ ok: true });
+});
+
 
 // DELETE (soft)
 router.delete("/:id", requireAdmin, (req, res) => {

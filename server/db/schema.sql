@@ -165,6 +165,17 @@ CREATE TABLE IF NOT EXISTS documents (
 CREATE INDEX IF NOT EXISTS idx_docs_case        ON documents(case_id);
 CREATE INDEX IF NOT EXISTS idx_docs_type        ON documents(doc_type);
 CREATE INDEX IF NOT EXISTS idx_docs_deleted     ON documents(deleted_at);
+-- Tabla abogados
+CREATE TABLE IF NOT EXISTS lawyers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  full_name TEXT NOT NULL CHECK(length(full_name) BETWEEN 3 AND 120),
+  email TEXT UNIQUE,
+  specialty TEXT,
+  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','inactive')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at TEXT
+);
 
 
 -- APPOINTMENTS
@@ -205,17 +216,6 @@ CREATE INDEX IF NOT EXISTS idx_appt_case     ON appointments(case_id);
 CREATE INDEX IF NOT EXISTS idx_appt_start    ON appointments(start_at);
 CREATE INDEX IF NOT EXISTS idx_appt_status   ON appointments(status);
 CREATE INDEX IF NOT EXISTS idx_appt_deleted  ON appointments(deleted_at);
--- Tabla abogados
-CREATE TABLE IF NOT EXISTS lawyers (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  full_name TEXT NOT NULL CHECK(length(full_name) BETWEEN 3 AND 120),
-  email TEXT UNIQUE,
-  specialty TEXT,
-  status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','inactive')),
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-  deleted_at TEXT
-);
 
 
 -- Índices

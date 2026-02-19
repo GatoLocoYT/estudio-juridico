@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,31 +14,59 @@
   <!-- UI polish sin librerías -->
   <style>
     /* Scrollbar (opcional, discreto) */
-    .soft-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
-    .soft-scroll::-webkit-scrollbar-thumb { background: rgb(226 232 240); border-radius: 999px; }
-    .soft-scroll::-webkit-scrollbar-track { background: transparent; }
+    .soft-scroll::-webkit-scrollbar {
+      height: 10px;
+      width: 10px;
+    }
+
+    .soft-scroll::-webkit-scrollbar-thumb {
+      background: rgb(226 232 240);
+      border-radius: 999px;
+    }
+
+    .soft-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
     /* Chip “activo” del sidebar */
-    .nav-btn.is-active{
-      background: rgb(238 242 255); /* indigo-50 */
-      color: rgb(15 23 42); /* slate-900 */
-      border: 1px solid rgb(199 210 254); /* indigo-200 */
+    .nav-btn.is-active {
+      background: rgb(238 242 255);
+      /* indigo-50 */
+      color: rgb(15 23 42);
+      /* slate-900 */
+      border: 1px solid rgb(199 210 254);
+      /* indigo-200 */
       position: relative;
     }
-    .nav-btn.is-active::before{
-      content:"";
-      position:absolute;
+
+    .nav-btn.is-active::before {
+      content: "";
+      position: absolute;
       left: 10px;
       top: 10px;
       bottom: 10px;
       width: 3px;
       border-radius: 999px;
-      background: rgb(99 102 241); /* indigo-500 */
+      background: rgb(99 102 241);
+      /* indigo-500 */
     }
 
     /* Modal: fade-in suave */
-    .modal-enter { animation: modalFade .16s ease-out; }
-    @keyframes modalFade { from { opacity: .0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-enter {
+      animation: modalFade .16s ease-out;
+    }
+
+    @keyframes modalFade {
+      from {
+        opacity: .0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 
@@ -69,10 +98,8 @@
           <span class="text-xs font-medium text-slate-900" id="adminEmail">admin@estudio.com</span>
         </div>
 
-        <button
-          id="btnLogout"
-          class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 active:scale-[0.99] transition"
-        >
+        <button id="btnLogout"
+          class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 active:scale-[0.99] transition">
           Cerrar sesión
         </button>
       </div>
@@ -133,10 +160,8 @@
           </div>
         </div>
 
-        <button
-          id="btnHealth"
-          class="mt-3 w-full rounded-2xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 active:scale-[0.99] transition"
-        >
+        <button id="btnHealth"
+          class="mt-3 w-full rounded-2xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 active:scale-[0.99] transition">
           Probar conexión
         </button>
       </div>
@@ -154,20 +179,13 @@
 
           <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div class="relative">
-              <input
-                id="searchInput"
-                type="text"
-                placeholder="Buscar (nombre, email, teléfono, título, etc.)"
-                class="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 pr-10 text-sm outline-none ring-slate-200 focus:ring-2 sm:w-[360px]"
-              />
+              <input id="searchInput" type="text" placeholder="Buscar (nombre, email, teléfono, título, etc.)"
+                class="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 pr-10 text-sm outline-none ring-slate-200 focus:ring-2 sm:w-[360px]" />
               <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">⌕</span>
             </div>
 
-            <select
-              title="Filtro"
-              id="filterSelect"
-              class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2"
-            >
+            <select title="Filtro" id="filterSelect"
+              class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2">
               <option value="">Filtro rápido</option>
               <option value="status:active">Status: active</option>
               <option value="status:inactive">Status: inactive</option>
@@ -176,10 +194,8 @@
               <option value="priority:low">Priority: low</option>
             </select>
 
-            <button
-              id="btnNew"
-              class="rounded-2xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:scale-[0.99] transition"
-            >
+            <button id="btnNew"
+              class="rounded-2xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 active:scale-[0.99] transition">
               + Nuevo
             </button>
           </div>
@@ -243,7 +259,8 @@
         </div>
 
         <!-- Empty state -->
-        <div id="emptyState" class="mt-4 hidden rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center">
+        <div id="emptyState"
+          class="mt-4 hidden rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center">
           <div class="mx-auto grid h-12 w-12 place-items-center rounded-3xl bg-slate-100 text-slate-600">📄</div>
           <div class="mt-3 text-sm font-semibold text-slate-900">Sin resultados</div>
           <div class="mt-1 text-sm text-slate-600">Probá con otro filtro o agregá un nuevo registro.</div>
@@ -334,7 +351,8 @@
             </div>
           </div>
 
-          <div id="modalError" class="mt-3 hidden rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"></div>
+          <div id="modalError"
+            class="mt-3 hidden rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700"></div>
         </form>
       </div>
     </div>
@@ -356,14 +374,49 @@
       });
     }
 
+    const CLIENT_STATUS_LABEL = {
+      active: "Atendido",
+      prospect: "Por atender",
+      inactive: "No atendido",
+    };
+
+    const CASE_STATUS_LABEL = {
+      open: "Abierto",
+      pending: "Pendiente",
+      closed: "Cerrado",
+      archived: "Archivado",
+    };
+
+    const CASE_PRIORITY_LABEL = {
+      low: "Baja",
+      normal: "Normal",
+      high: "Alta",
+      urgent: "Urgente",
+    };
+
+    function selectHtml({ value, options, dataAttr = {} }) {
+      const attrs = Object.entries(dataAttr)
+        .map(([k, v]) => `data-${k}="${String(v)}"`)
+        .join(" ");
+      const opts = options
+        .map(
+          (o) =>
+            `<option value="${o.value}" ${o.value === value ? "selected" : ""}>${o.label}</option>`
+        )
+        .join("");
+      return `<select class="rounded-xl border border-slate-200 bg-white px-2 py-1 text-xs"
+    ${attrs}>${opts}</select>`;
+    }
+
+
     function toast(message, type = "info") {
       const wrap = $("#toasts");
       const el = document.createElement("div");
       const base = "rounded-2xl border px-3 py-2 text-sm shadow bg-white";
       const color =
         type === "success" ? "border-emerald-200" :
-        type === "error" ? "border-rose-200" :
-        "border-slate-200";
+          type === "error" ? "border-rose-200" :
+            "border-slate-200";
       el.className = `${base} ${color}`;
       el.textContent = message;
       wrap.appendChild(el);
@@ -458,7 +511,7 @@
       },
       setKpis({ clients, cases, appointments, documents }) {
         if (clients != null) $("#kpiClients").textContent = String(clients);
-        if (cases !=null) $("#kpiCases").textContent = String(cases);
+        if (cases != null) $("#kpiCases").textContent = String(cases);
         if (appointments != null) $("#kpiAppointments").textContent = String(appointments);
         if (documents != null) $("#kpiDocuments").textContent = String(documents);
       },
@@ -486,4 +539,5 @@
   <!-- Tu lógica real -->
   <script src="../js/main.js"></script>
 </body>
+
 </html>

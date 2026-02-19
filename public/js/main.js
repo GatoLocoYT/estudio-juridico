@@ -20,15 +20,15 @@
   // Config
   // =========================
   const API = {
-    dashboard: "/api/admin/dashboard", // opcional; si no existe, hacemos fallback
+    dashboard: "/api/admin/dashboard",
     clients: "/api/clients",
     cases: "/api/cases",
     documents: "/api/documents",
     appointments: "/api/appointments",
     lawyers: "/api/lawyers",
-    logout: "/api/admin/logout", // si tu ruta difiere, cambiá esto
-    me: "/api/admin/me",         // opcional para mostrar email
-    health: "/health",       // opcional
+    logout: "/api/admin/logout",
+    me: "/api/admin/me",
+    health: "/health",
   };
 
   const state = {
@@ -179,7 +179,7 @@
     try {
       const me = await apiFetch(API.me);
       if (!me) return;
-      const email = me.email || me.admin?.email;
+      const email = me.user?.email;
       if (email && $("#adminEmail")) $("#adminEmail").textContent = email;
     } catch {
       // opcional
@@ -327,18 +327,31 @@
     const rowsHtml = items.map((c) => {
       const name = `<div class="font-medium">${fmt(c.full_name)}</div><div class="text-xs text-slate-600">ID #${fmt(c.id)}</div>`;
       const contact = `<div class="text-sm">${fmt(c.email)}</div><div class="text-xs text-slate-600">${fmt(c.phone)}</div>`;
+
+      const statusSelect = selectHtml({
+        value: c.status,
+        options: [
+          { value: "active", label: "Atendido" },
+          { value: "prospect", label: "Por atender" },
+          { value: "inactive", label: "No atendido" },
+        ],
+        dataAttr: { action: "client-status", id: c.id },
+      });
+
       return `<tr class="hover:bg-slate-50">
-        <td class="px-4 py-3">${name}</td>
-        <td class="px-4 py-3">${contact}</td>
-        <td class="px-4 py-3">${statusPill(c.status)}</td>
-        <td class="px-4 py-3"><span class="text-xs text-slate-600">${fmt(c.updated_at)}</span></td>
-        <td class="px-4 py-3 text-right">
-          <div class="flex justify-end gap-2">
-            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="edit" data-type="client" data-id="${c.id}">Editar</button>
-          </div>
-        </td>
-      </tr>`;
+    <td class="px-4 py-3">${name}</td>
+    <td class="px-4 py-3">${contact}</td>
+    <td class="px-4 py-3">${statusSelect}</td>
+    <td class="px-4 py-3"><span class="text-xs text-slate-600">${fmt(c.updated_at)}</span></td>
+    <td class="px-4 py-3 text-right">
+      <div class="flex justify-end gap-2">
+        <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+          data-action="edit" data-type="client" data-id="${c.id}">Editar</button>
+      </div>
+    </td>
+  </tr>`;
     }).join("");
+
 
     renderTableCommon({
       title: "Clientes",
@@ -357,28 +370,54 @@
     const { items, total } = normalizeListPayload(json);
 
     const headHtml = `
-      <th class="px-4 py-3 font-semibold">Caso</th>
-      <th class="px-4 py-3 font-semibold">Cliente</th>
-      <th class="px-4 py-3 font-semibold">Prioridad</th>
-      <th class="px-4 py-3 font-semibold">Estado</th>
-      <th class="px-4 py-3 font-semibold text-right">Acciones</th>
-    `;
+  <th class="px-4 py-3 font-semibold">Caso</th>
+  <th class="px-4 py-3 font-semibold">Cliente</th>
+  <th class="px-4 py-3 font-semibold">Prioridad</th>
+  <th class="px-4 py-3 font-semibold">Estado</th>
+  <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+`;
+
 
     const rowsHtml = items.map((c) => {
       const caseCell = `<div class="font-medium">${fmt(c.title)}</div><div class="text-xs text-slate-600">ID #${fmt(c.id)}</div>`;
       const clientCell = `<span class="text-sm">${fmt(c.client_name || ("Cliente #" + c.client_id))}</span>`;
+
+      const statusSelect = selectHtml({
+        value: c.status,
+        options: [
+          { value: "open", label: "Abierto" },
+          { value: "pending", label: "Pendiente" },
+          { value: "closed", label: "Cerrado" },
+          { value: "archived", label: "Archivado" },
+        ],
+        dataAttr: { action: "case-status", id: c.id },
+      });
+
+      const prioritySelect = selectHtml({
+        value: c.priority,
+        options: [
+          { value: "low", label: "Baja" },
+          { value: "normal", label: "Normal" },
+          { value: "high", label: "Alta" },
+          { value: "urgent", label: "Urgente" },
+        ],
+        dataAttr: { action: "case-priority", id: c.id },
+      });
+
       return `<tr class="hover:bg-slate-50">
-        <td class="px-4 py-3">${caseCell}</td>
-        <td class="px-4 py-3">${clientCell}</td>
-        <td class="px-4 py-3">${statusPill(c.priority)}</td>
-        <td class="px-4 py-3">${statusPill(c.status)}</td>
-        <td class="px-4 py-3 text-right">
-          <div class="flex justify-end gap-2">
-            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="edit" data-type="case" data-id="${c.id}">Editar</button>
-          </div>
-        </td>
-      </tr>`;
+    <td class="px-4 py-3">${caseCell}</td>
+    <td class="px-4 py-3">${clientCell}</td>
+    <td class="px-4 py-3">${prioritySelect}</td>
+    <td class="px-4 py-3">${statusSelect}</td>
+    <td class="px-4 py-3 text-right">
+      <div class="flex justify-end gap-2">
+        <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+          data-action="edit" data-type="case" data-id="${c.id}">Editar</button>
+      </div>
+    </td>
+  </tr>`;
     }).join("");
+
 
     renderTableCommon({
       title: "Casos",
@@ -448,10 +487,16 @@
       const clientCell = `<div class="font-medium">${fmt(a.client_name || ("Cliente #" + a.client_id))}</div><div class="text-xs text-slate-600">${fmt(a.channel)}</div>`;
       const lawyerCell = `<div class="text-sm">${fmt(a.lawyer_name || ("Abogado #" + a.lawyer_id))}</div><div class="text-xs text-slate-600">ID #${fmt(a.lawyer_id)}</div>`;
       const timeCell = `<div class="text-sm">${fmt(a.start_at)}</div><div class="text-xs text-slate-600">${fmt(a.end_at)}</div>`;
+
       const actions = `<div class="flex justify-end gap-2">
-        <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="confirm" data-type="appointment" data-id="${a.id}">Confirmar</button>
-        <button class="rounded-lg border border-rose-200 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50" data-action="cancel" data-type="appointment" data-id="${a.id}">Cancelar</button>
-      </div>`;
+  <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+    data-action="confirm" data-type="appointment" data-id="${a.id}">Confirmar</button>
+  <button class="rounded-lg border border-rose-200 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50"
+    data-action="cancel" data-type="appointment" data-id="${a.id}">Cancelar</button>
+  <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+    data-action="done" data-type="appointment" data-id="${a.id}">Hecho</button>
+</div>`;
+
       return `<tr class="hover:bg-slate-50">
         <td class="px-4 py-3">${clientCell}</td>
         <td class="px-4 py-3">${lawyerCell}</td>
@@ -588,16 +633,12 @@
   window.addEventListener("admin:health", () => loadSystemStatus());
 
   window.addEventListener("admin:new", () => {
-    if (state.view !== "clients") {
-      AdminUI.toast("Solo disponible en Clientes por ahora", "info");
-      return;
-    }
+    if (state.view === "clients") {
+      AdminUI.openModal({
+        title: "Nuevo Cliente",
+        subtitle: "Crear cliente",
 
-    AdminUI.openModal({
-      title: "Nuevo Cliente",
-      subtitle: "Crear cliente",
-
-      fieldsHtml: `
+        fieldsHtml: `
       <label>
         <div class="text-xs font-semibold">Nombre</div>
         <input id="c_name" class="input" placeholder="Nombre completo" />
@@ -619,68 +660,139 @@
       </label>
 
     `,
-    });
+      });
+      return;
+    }
+    if (state.view === "appointments") {
+      AdminUI.openModal({
+        title: "Nuevo Turno",
+        subtitle: "Agendar cita",
+        fieldsHtml: `
+        <label>
+          <div class="text-xs font-semibold">Client ID</div>
+          <input id="a_client" class="input" placeholder="Ej: 1" />
+        </label>
 
-    const form = document.getElementById("modalForm");
+        <label>
+          <div class="text-xs font-semibold">Lawyer ID (opcional)</div>
+          <input id="a_lawyer" class="input" placeholder="Ej: 1" />
+        </label>
 
-    form.onsubmit = async (e) => {
-      e.preventDefault();
+        <label>
+          <div class="text-xs font-semibold">Inicio (YYYY-MM-DD HH:MM:SS)</div>
+          <input id="a_start" class="input" placeholder="2026-02-18 17:00:00" />
+        </label>
 
-      const data = {
-        full_name: document.getElementById("c_name").value,
-        email: document.getElementById("c_email").value,
-        phone: document.getElementById("c_phone").value,
-        dni: document.getElementById("c_dni").value,
-      };
+        <label>
+          <div class="text-xs font-semibold">Fin (YYYY-MM-DD HH:MM:SS)</div>
+          <input id="a_end" class="input" placeholder="2026-02-18 17:30:00" />
+        </label>
 
-      try {
-        await apiFetch("/api/clients", {
+        <label>
+          <div class="text-xs font-semibold">Canal</div>
+          <select id="a_channel" class="input">
+            <option value="in_person">Presencial</option>
+            <option value="phone">Teléfono</option>
+            <option value="video">Video</option>
+          </select>
+        </label>
+
+        <label>
+          <div class="text-xs font-semibold">Título</div>
+          <input id="a_title" class="input" placeholder="Consulta inicial" />
+        </label>
+      `,
+      });
+
+      document.getElementById("modalForm").onsubmit = async (ev) => {
+        ev.preventDefault();
+
+        const payload = {
+          client_id: Number(document.getElementById("a_client").value),
+          lawyer_id: Number(document.getElementById("a_lawyer").value) || null,
+          start_at: document.getElementById("a_start").value,
+          end_at: document.getElementById("a_end").value,
+          channel: document.getElementById("a_channel").value,
+          title: document.getElementById("a_title").value,
+        };
+
+        await apiFetch("/api/appointments", {
           method: "POST",
-          body: JSON.stringify(data),
+          body: JSON.stringify(payload),
         });
 
-        AdminUI.toast("Cliente creado", "success");
+        AdminUI.toast("Turno creado", "success");
         AdminUI.closeModal();
-        loadClients();
+        renderCurrentView();
+      };
 
-      } catch (err) {
-        AdminUI.toast(err.message, "error");
-      }
+      return;
+    }
+
+    AdminUI.toast("Usá + Nuevo desde Clientes o Turnos", "info");
+  });
+
+
+  const form = document.getElementById("modalForm");
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const data = {
+      full_name: document.getElementById("c_name").value,
+      email: document.getElementById("c_email").value,
+      phone: document.getElementById("c_phone").value,
+      dni: document.getElementById("c_dni").value,
     };
-  });
 
-
-  window.addEventListener("admin:logout", async () => {
     try {
-      await apiFetch(API.logout, { method: "POST" });
-    } catch { }
-    window.location.href = "/admin/login";
-  });
+      await apiFetch("/api/clients", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
 
-  // acciones dentro de tabla (confirm/cancel etc.)
-  document.addEventListener("click", async (e) => {
-    const btn = e.target.closest("button[data-action]");
-    if (!btn) return;
+      AdminUI.toast("Cliente creado", "success");
+      AdminUI.closeModal();
+      loadClients();
 
-    const action = btn.dataset.action;
-    const type = btn.dataset.type;
-    const id = btn.dataset.id;
+    } catch (err) {
+      AdminUI.toast(err.message, "error");
+    }
+  };
+});
 
-    // ============================
-    // EDITAR CLIENTE (MVP)
-    // ============================
-    if (type === "client" && action === "edit") {
-      try {
-        // Traer cliente
-        const client = await apiFetch(`/api/clients/${id}`);
-        if (!client) return;
 
-        // Abrir modal con datos
-        AdminUI.openModal({
-          title: "Editar cliente",
-          subtitle: `ID #${id}`,
-          showDelete: true,
-          fieldsHtml: `
+window.addEventListener("admin:logout", async () => {
+  try {
+    await apiFetch(API.logout, { method: "POST" });
+  } catch { }
+  window.location.href = "/admin/login";
+});
+
+// acciones dentro de tabla (confirm/cancel etc.)
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+
+  const action = btn.dataset.action;
+  const type = btn.dataset.type;
+  const id = btn.dataset.id;
+
+  // ============================
+  // EDITAR CLIENTE (MVP)
+  // ============================
+  if (type === "client" && action === "edit") {
+    try {
+      // Traer cliente
+      const client = await apiFetch(`/api/clients/${id}`);
+      if (!client) return;
+
+      // Abrir modal con datos
+      AdminUI.openModal({
+        title: "Editar cliente",
+        subtitle: `ID #${id}`,
+        showDelete: true,
+        fieldsHtml: `
           <label class="text-sm">
             <div class="mb-1 text-xs font-semibold">Nombre</div>
             <input id="f_name" value="${client.full_name || ""}"
@@ -705,83 +817,134 @@
            class="w-full rounded-xl border px-3 py-2" />
           </label>
         `
+      });
+
+      // Guardar
+      document.getElementById("modalForm").onsubmit = async (ev) => {
+        ev.preventDefault();
+
+        const payload = {
+          full_name: document.getElementById("f_name").value,
+          email: document.getElementById("f_email").value,
+          phone: document.getElementById("f_phone").value,
+        };
+
+        await apiFetch(`/api/clients/${id}`, {
+          method: "PUT",
+          body: JSON.stringify(payload),
         });
 
-        // Guardar
-        document.getElementById("modalForm").onsubmit = async (ev) => {
-          ev.preventDefault();
+        AdminUI.toast("Cliente actualizado", "success");
+        AdminUI.closeModal();
+        renderCurrentView();
+      };
 
-          const payload = {
-            full_name: document.getElementById("f_name").value,
-            email: document.getElementById("f_email").value,
-            phone: document.getElementById("f_phone").value,
-          };
+      // Eliminar
+      document.getElementById("btnModalDelete").onclick = async () => {
+        if (!confirm("¿Eliminar cliente?")) return;
 
-          await apiFetch(`/api/clients/${id}`, {
-            method: "PUT",
-            body: JSON.stringify(payload),
-          });
+        await apiFetch(`/api/clients/${id}`, {
+          method: "DELETE",
+        });
 
-          AdminUI.toast("Cliente actualizado", "success");
-          AdminUI.closeModal();
-          renderCurrentView();
-        };
+        AdminUI.toast("Cliente eliminado", "success");
+        AdminUI.closeModal();
+        renderCurrentView();
+      };
 
-        // Eliminar
-        document.getElementById("btnModalDelete").onclick = async () => {
-          if (!confirm("¿Eliminar cliente?")) return;
+    } catch (err) {
+      AdminUI.toast("Error al editar cliente", "error");
+      console.error(err);
+    }
 
-          await apiFetch(`/api/clients/${id}`, {
-            method: "DELETE",
-          });
+    return;
+  }
 
-          AdminUI.toast("Cliente eliminado", "success");
-          AdminUI.closeModal();
-          renderCurrentView();
-        };
-
-      } catch (err) {
-        AdminUI.toast("Error al editar cliente", "error");
-        console.error(err);
+  // ============================
+  // TURNOS (lo tuyo actual)
+  // ============================
+  if (type === "appointment") {
+    try {
+      if (action === "confirm") {
+        await apiFetch(`/api/appointments/${id}/confirm`, { method: "POST" });
+        AdminUI.toast("Turno confirmado", "success");
+        await renderCurrentView();
+        return;
       }
 
+      if (action === "done") {
+        await apiFetch(`/api/appointments/${id}/mark-done`, { method: "POST" });
+        AdminUI.toast("Turno marcado como hecho", "success");
+        await renderCurrentView();
+        return;
+      }
+
+
+      if (action === "cancel") {
+        await apiFetch(`/api/appointments/${id}/cancel`, { method: "POST" });
+        AdminUI.toast("Turno cancelado", "success");
+        await renderCurrentView();
+        return;
+      }
+    } catch (err) {
+      AdminUI.toast("Error en turno", "error");
+    }
+  }
+
+  // fallback
+  AdminUI.toast(`Acción no implementada: ${action}`, "info");
+});
+document.addEventListener("change", async (e) => {
+  const sel = e.target.closest("select[data-action]");
+  if (!sel) return;
+
+  const action = sel.dataset.action;
+  const id = sel.dataset.id;
+  const value = sel.value;
+
+  try {
+    if (action === "client-status") {
+      await apiFetch(`/api/clients/${id}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ status: value }),
+      });
+      AdminUI.toast("Estado de cliente actualizado", "success");
       return;
     }
 
-    // ============================
-    // TURNOS (lo tuyo actual)
-    // ============================
-    if (type === "appointment") {
-      try {
-        if (action === "confirm") {
-          await apiFetch(`/api/appointments/${id}/confirm`, { method: "POST" });
-          AdminUI.toast("Turno confirmado", "success");
-          await renderCurrentView();
-          return;
-        }
-
-        if (action === "cancel") {
-          await apiFetch(`/api/appointments/${id}/cancel`, { method: "POST" });
-          AdminUI.toast("Turno cancelado", "success");
-          await renderCurrentView();
-          return;
-        }
-      } catch (err) {
-        AdminUI.toast("Error en turno", "error");
-      }
+    if (action === "case-status") {
+      await apiFetch(`/api/cases/${id}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ status: value }),
+      });
+      AdminUI.toast("Estado de caso actualizado", "success");
+      return;
     }
 
-    // fallback
-    AdminUI.toast(`Acción no implementada: ${action}`, "info");
-  });
+    if (action === "case-priority") {
+      await apiFetch(`/api/cases/${id}/priority`, {
+        method: "PUT",
+        body: JSON.stringify({ priority: value }),
+      });
+      AdminUI.toast("Prioridad actualizada", "success");
+      return;
+    }
+  } catch (err) {
+    console.error(err);
+    AdminUI.toast(err.message || "Error al actualizar", "error");
+    // refresco por si quedó inconsistente
+    renderCurrentView();
+  }
+});
 
 
-  // =========================
-  // Boot
-  // =========================
-  (async function boot() {
-    await loadMe();
-    await loadSystemStatus();
-    await renderCurrentView();
-  })();
+
+// =========================
+// Boot
+// =========================
+(async function boot() {
+  await loadMe();
+  await loadSystemStatus();
+  await renderCurrentView();
 })();
+
