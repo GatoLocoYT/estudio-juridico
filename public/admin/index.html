@@ -67,6 +67,40 @@
         transform: translateY(0);
       }
     }
+
+    /* Inputs del panel */
+    .input {
+      width: 100%;
+      border: 1px solid rgb(226 232 240);
+      /* slate-200 */
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 14px;
+      background: white;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .input:focus {
+      border-color: rgb(99 102 241);
+      /* indigo-500 */
+      box-shadow: 0 0 0 2px rgb(199 210 254);
+      /* indigo-200 */
+    }
+
+    .input::placeholder {
+      color: rgb(148 163 184);
+      /* slate-400 */
+    }
+
+    select.input {
+      cursor: pointer;
+    }
+
+    textarea.input {
+      resize: vertical;
+      min-height: 80px;
+    }
   </style>
 </head>
 
@@ -77,7 +111,7 @@
       <div class="flex items-center gap-3">
         <a href="/" class="group flex items-center gap-3 rounded-2xl px-2 py-1 hover:bg-slate-100 transition">
           <div class="h-9 w-9 rounded-2xl bg-amber-100 border border-amber-200 shadow-sm grid place-items-center">
-            <span class="text-amber-800 font-semibold">EJ</span>
+            <span class="text-amber-800 font-semibold">JL</span>
           </div>
 
           <div class="leading-tight">
@@ -530,6 +564,8 @@
         $("#btnNext").disabled = !canNext;
       },
     };
+
+
 
     // Default view
     setActiveNav("dashboard");

@@ -86,6 +86,31 @@ router.get("/:id", requireAdmin, (req, res) => {
   return res.json(row);
 });
 
+// Cambiar SOLO status (acción rápida dashboard)
+router.put("/:id/status", requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) return apiError(res, 400, "VALIDATION_ERROR", "Invalid id");
+
+  const status = trimOrNull(req.body.status);
+  if (!["active", "inactive", "prospect"].includes(status)) {
+    return apiError(res, 400, "VALIDATION_ERROR", "Invalid status", { field: "status" });
+  }
+
+  const current = db()
+    .prepare(`SELECT id FROM clients WHERE id = ? AND deleted_at IS NULL`)
+    .get(id);
+  if (!mustExistOr404(res, current, "client")) return;
+
+  db().prepare(`
+    UPDATE clients
+    SET status = ?, updated_at = datetime('now')
+    WHERE id = ? AND deleted_at IS NULL
+  `).run(status, id);
+
+  return res.json({ ok: true });
+});
+
+
 // CREATE
 router.post("/", requireAdmin, (req, res) => {
   const full_name = trimOrNull(req.body.full_name);

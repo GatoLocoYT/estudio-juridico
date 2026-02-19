@@ -45,11 +45,36 @@
   // =========================
   const $ = (sel) => document.querySelector(sel);
 
+  function escapeHtml(s) {
+    return String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function selectHtml({ value, options, dataAttr = {} }) {
+    const attrs = Object.entries(dataAttr)
+      .map(([k, v]) => `data-${k}="${escapeHtml(v)}"`)
+      .join(" ");
+
+    const opts = (options || [])
+      .map((o) => {
+        const sel = String(o.value) === String(value) ? "selected" : "";
+        return `<option value="${escapeHtml(o.value)}" ${sel}>${escapeHtml(o.label)}</option>`;
+      })
+      .join("");
+
+    return `
+      <select ${attrs}
+        class="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none ring-slate-200 focus:ring-2">
+        ${opts}
+      </select>
+    `;
+  }
+
   function normalizeListPayload(json) {
-    // soporta:
-    // 1) { items, total, page, limit }
-    // 2) { data, meta: { total, page, limit } }
-    // 3) Array directo
     if (Array.isArray(json)) {
       return { items: json, total: json.length, page: 1, limit: json.length };
     }
@@ -80,27 +105,22 @@
     });
 
     if (res.status === 401 || res.status === 403) {
-      // no autorizado -> login
       window.location.href = "/admin/login";
       return null;
     }
 
     let json = null;
     const contentType = res.headers.get("content-type") || "";
-    if (contentType.includes("application/json")) {
-      json = await res.json().catch(() => null);
-    } else {
-      json = await res.text().catch(() => null);
-    }
+    if (contentType.includes("application/json")) json = await res.json().catch(() => null);
+    else json = await res.text().catch(() => null);
 
     if (!res.ok) {
       const msg =
-        (json && json.error && (json.error.message || json.error.code)) ||
+        (json && json.error && (json.error.message || json.error.code || json.error)) ||
         (typeof json === "string" && json) ||
         `HTTP ${res.status}`;
       throw new Error(msg);
     }
-
     return json;
   }
 
@@ -126,10 +146,12 @@
     const map = {
       active: "bg-emerald-50 text-emerald-700 border-emerald-200",
       inactive: "bg-slate-50 text-slate-700 border-slate-200",
+      prospect: "bg-amber-50 text-amber-700 border-amber-200",
 
       open: "bg-emerald-50 text-emerald-700 border-emerald-200",
       pending: "bg-amber-50 text-amber-700 border-amber-200",
       closed: "bg-slate-50 text-slate-700 border-slate-200",
+      archived: "bg-slate-50 text-slate-700 border-slate-200",
 
       scheduled: "bg-blue-50 text-blue-700 border-blue-200",
       confirmed: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -146,7 +168,7 @@
   }
 
   function badge(text) {
-    return `<span class="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700">${text}</span>`;
+    return `<span class="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700">${escapeHtml(text)}</span>`;
   }
 
   function renderTableCommon({ title, count, headHtml, rowsHtml, pageInfo, canPrev, canNext }) {
@@ -167,7 +189,6 @@
   // =========================
   async function loadSystemStatus() {
     try {
-      // si no tenés /health, esto no rompe
       const res = await apiFetch(API.health);
       if (res !== null) AdminUI.setSystemStatus({ api: "OK", db: "OK", last: new Date().toLocaleString() });
     } catch {
@@ -181,16 +202,13 @@
       if (!me) return;
       const email = me.user?.email;
       if (email && $("#adminEmail")) $("#adminEmail").textContent = email;
-    } catch {
-      // opcional
-    }
+    } catch { }
   }
 
   // =========================
   // Dashboard
   // =========================
   async function loadDashboard() {
-    // Intento 1: endpoint dedicado (si existe)
     try {
       const dash = await apiFetch(API.dashboard);
       if (dash) {
@@ -214,11 +232,13 @@
           .slice(0, 12)
           .map((x) => {
             const type = badge(fmt(x.type));
-            const detail = `<div class="font-medium">${fmt(x.title || x.detail)}</div><div class="text-xs text-slate-600">${fmt(x.subtitle || "")}</div>`;
+            const detail = `<div class="font-medium">${escapeHtml(fmt(x.title || x.detail))}</div>
+              <div class="text-xs text-slate-600">${escapeHtml(fmt(x.subtitle || ""))}</div>`;
             const st = statusPill(x.status);
-            const dt = `<span class="text-xs text-slate-600">${fmt(x.at || x.created_at || x.updated_at)}</span>`;
+            const dt = `<span class="text-xs text-slate-600">${escapeHtml(fmt(x.at || x.created_at || x.updated_at))}</span>`;
             const actions = `<div class="flex justify-end gap-2">
-              <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="view" data-type="${fmt(x.type)}" data-id="${fmt(x.id)}">Ver</button>
+              <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+                data-action="view" data-type="${escapeHtml(fmt(x.type))}" data-id="${escapeHtml(fmt(x.id))}">Ver</button>
             </div>`;
             return `<tr class="hover:bg-slate-50">
               <td class="px-4 py-3">${type}</td>
@@ -239,21 +259,17 @@
           canPrev: false,
           canNext: false,
         });
-
         return;
       }
-    } catch {
-      // fallback
-    }
+    } catch { }
 
-    // Fallback: 4 requests
+    // fallback
     const [clientsRaw, casesRaw, apptsRaw, docsRaw] = await Promise.all([
       apiFetch(API.clients),
       apiFetch(API.cases),
       apiFetch(API.appointments),
       apiFetch(API.documents),
     ]);
-
     if (!clientsRaw || !casesRaw || !apptsRaw || !docsRaw) return;
 
     const clients = normalizeListPayload(clientsRaw);
@@ -268,7 +284,6 @@
       documents: docs.total,
     });
 
-    // Actividad: 6 próximos turnos (si vienen ordenados; si no, igual sirve)
     const headHtml = `
       <th class="px-4 py-3 font-semibold">Tipo</th>
       <th class="px-4 py-3 font-semibold">Detalle</th>
@@ -280,12 +295,13 @@
       .slice(0, 10)
       .map((a) => {
         const type = badge("Turno");
-        const detail = `<div class="font-medium">${fmt(a.client_name || a.client?.full_name || ("Cliente #" + a.client_id))}</div>
-                        <div class="text-xs text-slate-600">${fmt(a.start_at)} · ${fmt(a.lawyer_name || ("Abogado #" + a.lawyer_id))}</div>`;
+        const detail = `<div class="font-medium">${escapeHtml(fmt(a.client_name || ("Cliente #" + a.client_id)))}</div>
+          <div class="text-xs text-slate-600">${escapeHtml(fmt(a.start_at))} · ${escapeHtml(fmt(a.lawyer_name || ("Abogado #" + a.lawyer_id)))}</div>`;
         const st = statusPill(a.status);
-        const dt = `<span class="text-xs text-slate-600">${fmt(a.updated_at || a.created_at)}</span>`;
+        const dt = `<span class="text-xs text-slate-600">${escapeHtml(fmt(a.updated_at || a.created_at))}</span>`;
         const actions = `<div class="flex justify-end gap-2">
-          <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="view" data-type="appointment" data-id="${a.id}">Ver</button>
+          <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+            data-action="view" data-type="appointment" data-id="${escapeHtml(a.id)}">Ver</button>
         </div>`;
         return `<tr class="hover:bg-slate-50">
           <td class="px-4 py-3">${type}</td>
@@ -309,7 +325,7 @@
   }
 
   // =========================
-  // Views: list loaders
+  // Views
   // =========================
   async function loadClients() {
     const json = await apiFetch(API.clients);
@@ -325,8 +341,8 @@
     `;
 
     const rowsHtml = items.map((c) => {
-      const name = `<div class="font-medium">${fmt(c.full_name)}</div><div class="text-xs text-slate-600">ID #${fmt(c.id)}</div>`;
-      const contact = `<div class="text-sm">${fmt(c.email)}</div><div class="text-xs text-slate-600">${fmt(c.phone)}</div>`;
+      const name = `<div class="font-medium">${escapeHtml(fmt(c.full_name))}</div><div class="text-xs text-slate-600">ID #${escapeHtml(fmt(c.id))}</div>`;
+      const contact = `<div class="text-sm">${escapeHtml(fmt(c.email))}</div><div class="text-xs text-slate-600">${escapeHtml(fmt(c.phone))}</div>`;
 
       const statusSelect = selectHtml({
         value: c.status,
@@ -339,19 +355,18 @@
       });
 
       return `<tr class="hover:bg-slate-50">
-    <td class="px-4 py-3">${name}</td>
-    <td class="px-4 py-3">${contact}</td>
-    <td class="px-4 py-3">${statusSelect}</td>
-    <td class="px-4 py-3"><span class="text-xs text-slate-600">${fmt(c.updated_at)}</span></td>
-    <td class="px-4 py-3 text-right">
-      <div class="flex justify-end gap-2">
-        <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
-          data-action="edit" data-type="client" data-id="${c.id}">Editar</button>
-      </div>
-    </td>
-  </tr>`;
+        <td class="px-4 py-3">${name}</td>
+        <td class="px-4 py-3">${contact}</td>
+        <td class="px-4 py-3">${statusSelect}</td>
+        <td class="px-4 py-3"><span class="text-xs text-slate-600">${escapeHtml(fmt(c.updated_at))}</span></td>
+        <td class="px-4 py-3 text-right">
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+              data-action="edit" data-type="client" data-id="${escapeHtml(c.id)}">Editar</button>
+          </div>
+        </td>
+      </tr>`;
     }).join("");
-
 
     renderTableCommon({
       title: "Clientes",
@@ -370,17 +385,16 @@
     const { items, total } = normalizeListPayload(json);
 
     const headHtml = `
-  <th class="px-4 py-3 font-semibold">Caso</th>
-  <th class="px-4 py-3 font-semibold">Cliente</th>
-  <th class="px-4 py-3 font-semibold">Prioridad</th>
-  <th class="px-4 py-3 font-semibold">Estado</th>
-  <th class="px-4 py-3 font-semibold text-right">Acciones</th>
-`;
-
+      <th class="px-4 py-3 font-semibold">Caso</th>
+      <th class="px-4 py-3 font-semibold">Cliente</th>
+      <th class="px-4 py-3 font-semibold">Prioridad</th>
+      <th class="px-4 py-3 font-semibold">Estado</th>
+      <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+    `;
 
     const rowsHtml = items.map((c) => {
-      const caseCell = `<div class="font-medium">${fmt(c.title)}</div><div class="text-xs text-slate-600">ID #${fmt(c.id)}</div>`;
-      const clientCell = `<span class="text-sm">${fmt(c.client_name || ("Cliente #" + c.client_id))}</span>`;
+      const caseCell = `<div class="font-medium">${escapeHtml(fmt(c.title))}</div><div class="text-xs text-slate-600">ID #${escapeHtml(fmt(c.id))}</div>`;
+      const clientCell = `<span class="text-sm">${escapeHtml(fmt(c.client_name || ("Cliente #" + c.client_id)))}</span>`;
 
       const statusSelect = selectHtml({
         value: c.status,
@@ -405,19 +419,18 @@
       });
 
       return `<tr class="hover:bg-slate-50">
-    <td class="px-4 py-3">${caseCell}</td>
-    <td class="px-4 py-3">${clientCell}</td>
-    <td class="px-4 py-3">${prioritySelect}</td>
-    <td class="px-4 py-3">${statusSelect}</td>
-    <td class="px-4 py-3 text-right">
-      <div class="flex justify-end gap-2">
-        <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
-          data-action="edit" data-type="case" data-id="${c.id}">Editar</button>
-      </div>
-    </td>
-  </tr>`;
+        <td class="px-4 py-3">${caseCell}</td>
+        <td class="px-4 py-3">${clientCell}</td>
+        <td class="px-4 py-3">${prioritySelect}</td>
+        <td class="px-4 py-3">${statusSelect}</td>
+        <td class="px-4 py-3 text-right">
+          <div class="flex justify-end gap-2">
+            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+              data-action="edit" data-type="case" data-id="${escapeHtml(c.id)}">Editar</button>
+          </div>
+        </td>
+      </tr>`;
     }).join("");
-
 
     renderTableCommon({
       title: "Casos",
@@ -445,15 +458,15 @@
 
     const rowsHtml = items.map((d) => {
       const kb = d.size_bytes ? Math.round(Number(d.size_bytes) / 1024) : null;
-      const fileCell = `<div class="font-medium">${fmt(d.filename)}</div><div class="text-xs text-slate-600">ID #${fmt(d.id)}</div>`;
+      const fileCell = `<div class="font-medium">${escapeHtml(fmt(d.filename))}</div><div class="text-xs text-slate-600">ID #${escapeHtml(fmt(d.id))}</div>`;
       return `<tr class="hover:bg-slate-50">
         <td class="px-4 py-3">${fileCell}</td>
         <td class="px-4 py-3">${statusPill(d.doc_type)}</td>
-        <td class="px-4 py-3"><span class="text-sm">${fmt(d.case_title || ("Caso #" + d.case_id))}</span></td>
+        <td class="px-4 py-3"><span class="text-sm">${escapeHtml(fmt(d.case_title || ("Caso #" + d.case_id)))}</span></td>
         <td class="px-4 py-3"><span class="text-xs text-slate-600">${kb ? kb + " KB" : "—"}</span></td>
         <td class="px-4 py-3 text-right">
           <div class="flex justify-end gap-2">
-            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="view" data-type="document" data-id="${d.id}">Ver</button>
+            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="view" data-type="document" data-id="${escapeHtml(d.id)}">Ver</button>
           </div>
         </td>
       </tr>`;
@@ -484,18 +497,18 @@
     `;
 
     const rowsHtml = items.map((a) => {
-      const clientCell = `<div class="font-medium">${fmt(a.client_name || ("Cliente #" + a.client_id))}</div><div class="text-xs text-slate-600">${fmt(a.channel)}</div>`;
-      const lawyerCell = `<div class="text-sm">${fmt(a.lawyer_name || ("Abogado #" + a.lawyer_id))}</div><div class="text-xs text-slate-600">ID #${fmt(a.lawyer_id)}</div>`;
-      const timeCell = `<div class="text-sm">${fmt(a.start_at)}</div><div class="text-xs text-slate-600">${fmt(a.end_at)}</div>`;
+      const clientCell = `<div class="font-medium">${escapeHtml(fmt(a.client_name || ("Cliente #" + a.client_id)))}</div><div class="text-xs text-slate-600">${escapeHtml(fmt(a.channel))}</div>`;
+      const lawyerCell = `<div class="text-sm">${escapeHtml(fmt(a.lawyer_name || ("Abogado #" + a.lawyer_id)))}</div><div class="text-xs text-slate-600">ID #${escapeHtml(fmt(a.lawyer_id))}</div>`;
+      const timeCell = `<div class="text-sm">${escapeHtml(fmt(a.start_at))}</div><div class="text-xs text-slate-600">${escapeHtml(fmt(a.end_at))}</div>`;
 
       const actions = `<div class="flex justify-end gap-2">
-  <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
-    data-action="confirm" data-type="appointment" data-id="${a.id}">Confirmar</button>
-  <button class="rounded-lg border border-rose-200 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50"
-    data-action="cancel" data-type="appointment" data-id="${a.id}">Cancelar</button>
-  <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
-    data-action="done" data-type="appointment" data-id="${a.id}">Hecho</button>
-</div>`;
+        <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+          data-action="confirm" data-type="appointment" data-id="${escapeHtml(a.id)}">Confirmar</button>
+        <button class="rounded-lg border border-rose-200 px-2 py-1 text-xs text-rose-700 hover:bg-rose-50"
+          data-action="cancel" data-type="appointment" data-id="${escapeHtml(a.id)}">Cancelar</button>
+        <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100"
+          data-action="done" data-type="appointment" data-id="${escapeHtml(a.id)}">Hecho</button>
+      </div>`;
 
       return `<tr class="hover:bg-slate-50">
         <td class="px-4 py-3">${clientCell}</td>
@@ -530,14 +543,14 @@
     `;
 
     const rowsHtml = items.map((l) => {
-      const name = `<div class="font-medium">${fmt(l.full_name)}</div><div class="text-xs text-slate-600">ID #${fmt(l.id)}</div>`;
+      const name = `<div class="font-medium">${escapeHtml(fmt(l.full_name))}</div><div class="text-xs text-slate-600">ID #${escapeHtml(fmt(l.id))}</div>`;
       return `<tr class="hover:bg-slate-50">
         <td class="px-4 py-3">${name}</td>
-        <td class="px-4 py-3"><span class="text-sm">${fmt(l.specialty)}</span></td>
+        <td class="px-4 py-3"><span class="text-sm">${escapeHtml(fmt(l.specialty))}</span></td>
         <td class="px-4 py-3">${statusPill(l.status)}</td>
         <td class="px-4 py-3 text-right">
           <div class="flex justify-end gap-2">
-            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="edit" data-type="lawyer" data-id="${l.id}">Editar</button>
+            <button class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" data-action="edit" data-type="lawyer" data-id="${escapeHtml(l.id)}">Editar</button>
           </div>
         </td>
       </tr>`;
@@ -570,25 +583,6 @@
     } catch (err) {
       console.error(err);
       AdminUI.toast(`Error: ${err.message || err}`, "error");
-      AdminUI.setTable({
-        title: "Error",
-        count: 0,
-        headHtml: `
-          <th class="px-4 py-3 font-semibold">Detalle</th>
-          <th class="px-4 py-3 font-semibold">Acción</th>
-        `,
-        bodyHtml: `<tr>
-          <td class="px-4 py-3 text-sm text-slate-700">${fmt(err.message || err)}</td>
-          <td class="px-4 py-3">
-            <button id="retryBtn" class="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100">Reintentar</button>
-          </td>
-        </tr>`,
-        pageInfo: "—",
-        canPrev: false,
-        canNext: false,
-      });
-      const btn = document.getElementById("retryBtn");
-      if (btn) btn.onclick = () => renderCurrentView();
     } finally {
       AdminUI.showLoader(false);
     }
@@ -603,10 +597,95 @@
     renderCurrentView();
   });
 
+  window.addEventListener("admin:refresh", () => renderCurrentView());
+  window.addEventListener("admin:health", () => loadSystemStatus());
+
+  window.addEventListener("admin:logout", async () => {
+    try {
+      await apiFetch(API.logout, { method: "POST" });
+    } catch { }
+    window.location.href = "/admin/login";
+  });
+
+  // Acciones dentro de tabla
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const type = btn.dataset.type;
+    const id = btn.dataset.id;
+
+    if (type === "appointment") {
+      try {
+        if (action === "confirm") await apiFetch(`/api/appointments/${id}/confirm`, { method: "POST" });
+        if (action === "done") await apiFetch(`/api/appointments/${id}/mark-done`, { method: "POST" });
+        if (action === "cancel") await apiFetch(`/api/appointments/${id}/cancel`, { method: "POST" });
+
+        AdminUI.toast("Acción aplicada", "success");
+        await renderCurrentView();
+      } catch (err) {
+        AdminUI.toast(err.message || "Error en turno", "error");
+      }
+      return;
+    }
+  });
+
+  // Selects rápidos (status/prioridad)
+  document.addEventListener("change", async (e) => {
+    const sel = e.target.closest("select[data-action]");
+    if (!sel) return;
+
+    const action = sel.dataset.action;
+    const id = sel.dataset.id;
+    const value = sel.value;
+
+    try {
+      if (action === "client-status") {
+        // OJO: tu backend HOY no tiene esta ruta -> abajo te dejo cómo agregarla
+        await apiFetch(`/api/clients/${id}/status`, {
+          method: "PUT",
+          body: JSON.stringify({ status: value }),
+        });
+        AdminUI.toast("Estado de cliente actualizado", "success");
+        return;
+      }
+
+      if (action === "case-status") {
+        await apiFetch(`/api/cases/${id}/status`, {
+          method: "PUT",
+          body: JSON.stringify({ status: value }),
+        });
+        AdminUI.toast("Estado de caso actualizado", "success");
+        return;
+      }
+
+      if (action === "case-priority") {
+        await apiFetch(`/api/cases/${id}/priority`, {
+          method: "PUT",
+          body: JSON.stringify({ priority: value }),
+        });
+        AdminUI.toast("Prioridad actualizada", "success");
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      AdminUI.toast(err.message || "Error al actualizar", "error");
+      renderCurrentView();
+    }
+  });
+
+  // =========================
+  // Events desde admin/index.html
+  // =========================
+  window.addEventListener("admin:view", (e) => {
+    state.view = e.detail.view;
+    state.page = 1;
+    renderCurrentView();
+  });
+
   window.addEventListener("admin:search", (e) => {
     state.q = e.detail.q || "";
-    // Por ahora no lo usamos en API (no tenés query params), pero lo dejamos listo
-    // Podés filtrar del lado cliente en el futuro o agregar search en backend.
     renderCurrentView();
   });
 
@@ -632,37 +711,74 @@
 
   window.addEventListener("admin:health", () => loadSystemStatus());
 
+  // =========================
+  // admin:new COMPLETO (Clientes / Turnos / Casos)
+  // =========================
   window.addEventListener("admin:new", () => {
+    // Limpia handlers viejos por si venís de otro modal
+    const form = document.getElementById("modalForm");
+    if (form) form.onsubmit = null;
+
+    // -------------------------
+    // CLIENTS
+    // -------------------------
     if (state.view === "clients") {
       AdminUI.openModal({
         title: "Nuevo Cliente",
         subtitle: "Crear cliente",
-
         fieldsHtml: `
-      <label>
-        <div class="text-xs font-semibold">Nombre</div>
-        <input id="c_name" class="input" placeholder="Nombre completo" />
-      </label>
+        <label>
+          <div class="text-xs font-semibold">Nombre</div>
+          <input id="c_name" class="input" placeholder="Nombre completo" />
+        </label>
 
-      <label>
-        <div class="text-xs font-semibold">Email</div>
-        <input id="c_email" class="input" placeholder="Email" />
-      </label>
+        <label>
+          <div class="text-xs font-semibold">Email</div>
+          <input id="c_email" class="input" placeholder="Email" />
+        </label>
 
-      <label>
-        <div class="text-xs font-semibold">Teléfono</div>
-        <input id="c_phone" class="input" placeholder="Teléfono" />
-      </label>
+        <label>
+          <div class="text-xs font-semibold">Teléfono</div>
+          <input id="c_phone" class="input" placeholder="Teléfono" />
+        </label>
 
-      <label>
-        <div class="text-xs font-semibold">Número de DNI</div>
-        <input id="c_dni" class="input" placeholder="DNI" />
-      </label>
-
-    `,
+        <label>
+          <div class="text-xs font-semibold">Número de DNI</div>
+          <input id="c_dni" class="input" placeholder="DNI" />
+        </label>
+      `,
       });
+
+      document.getElementById("modalForm").onsubmit = async (e) => {
+        e.preventDefault();
+
+        const payload = {
+          full_name: document.getElementById("c_name").value,
+          email: document.getElementById("c_email").value || null,
+          phone: document.getElementById("c_phone").value || null,
+          dni: document.getElementById("c_dni").value || null,
+        };
+
+        try {
+          await apiFetch("/api/clients", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
+
+          AdminUI.toast("Cliente creado", "success");
+          AdminUI.closeModal();
+          renderCurrentView();
+        } catch (err) {
+          AdminUI.toast(err.message || "Error al crear cliente", "error");
+        }
+      };
+
       return;
     }
+
+    // -------------------------
+    // APPOINTMENTS
+    // -------------------------
     if (state.view === "appointments") {
       AdminUI.openModal({
         title: "Nuevo Turno",
@@ -671,6 +787,11 @@
         <label>
           <div class="text-xs font-semibold">Client ID</div>
           <input id="a_client" class="input" placeholder="Ej: 1" />
+        </label>
+
+        <label>
+          <div class="text-xs font-semibold">Case ID (opcional)</div>
+          <input id="a_case" class="input" placeholder="Ej: 10" />
         </label>
 
         <label>
@@ -697,9 +818,14 @@
           </select>
         </label>
 
-        <label>
+        <label class="sm:col-span-2">
           <div class="text-xs font-semibold">Título</div>
           <input id="a_title" class="input" placeholder="Consulta inicial" />
+        </label>
+
+        <label class="sm:col-span-2">
+          <div class="text-xs font-semibold">Notas (opcional)</div>
+          <textarea id="a_notes" class="input" rows="3" placeholder="Notas internas..."></textarea>
         </label>
       `,
       });
@@ -709,242 +835,124 @@
 
         const payload = {
           client_id: Number(document.getElementById("a_client").value),
+          case_id: Number(document.getElementById("a_case").value) || null,
           lawyer_id: Number(document.getElementById("a_lawyer").value) || null,
           start_at: document.getElementById("a_start").value,
           end_at: document.getElementById("a_end").value,
           channel: document.getElementById("a_channel").value,
-          title: document.getElementById("a_title").value,
+          title: document.getElementById("a_title").value || null,
+          notes: document.getElementById("a_notes").value || null,
         };
 
-        await apiFetch("/api/appointments", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
+        try {
+          await apiFetch("/api/appointments", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
 
-        AdminUI.toast("Turno creado", "success");
-        AdminUI.closeModal();
-        renderCurrentView();
+          AdminUI.toast("Turno creado", "success");
+          AdminUI.closeModal();
+          renderCurrentView();
+        } catch (err) {
+          AdminUI.toast(err.message || "Error al crear turno", "error");
+        }
       };
 
       return;
     }
 
-    AdminUI.toast("Usá + Nuevo desde Clientes o Turnos", "info");
-  });
-
-
-  const form = document.getElementById("modalForm");
-
-  form.onsubmit = async (e) => {
-    e.preventDefault();
-
-    const data = {
-      full_name: document.getElementById("c_name").value,
-      email: document.getElementById("c_email").value,
-      phone: document.getElementById("c_phone").value,
-      dni: document.getElementById("c_dni").value,
-    };
-
-    try {
-      await apiFetch("/api/clients", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-
-      AdminUI.toast("Cliente creado", "success");
-      AdminUI.closeModal();
-      loadClients();
-
-    } catch (err) {
-      AdminUI.toast(err.message, "error");
-    }
-  };
-});
-
-
-window.addEventListener("admin:logout", async () => {
-  try {
-    await apiFetch(API.logout, { method: "POST" });
-  } catch { }
-  window.location.href = "/admin/login";
-});
-
-// acciones dentro de tabla (confirm/cancel etc.)
-document.addEventListener("click", async (e) => {
-  const btn = e.target.closest("button[data-action]");
-  if (!btn) return;
-
-  const action = btn.dataset.action;
-  const type = btn.dataset.type;
-  const id = btn.dataset.id;
-
-  // ============================
-  // EDITAR CLIENTE (MVP)
-  // ============================
-  if (type === "client" && action === "edit") {
-    try {
-      // Traer cliente
-      const client = await apiFetch(`/api/clients/${id}`);
-      if (!client) return;
-
-      // Abrir modal con datos
+    // -------------------------
+    // CASES
+    // -------------------------
+    if (state.view === "cases") {
       AdminUI.openModal({
-        title: "Editar cliente",
-        subtitle: `ID #${id}`,
-        showDelete: true,
+        title: "Nuevo Caso",
+        subtitle: "Crear caso para un cliente",
         fieldsHtml: `
-          <label class="text-sm">
-            <div class="mb-1 text-xs font-semibold">Nombre</div>
-            <input id="f_name" value="${client.full_name || ""}"
-              class="w-full rounded-xl border px-3 py-2" />
-          </label>
+        <label>
+          <div class="text-xs font-semibold">Client ID</div>
+          <input id="k_client" class="input" placeholder="Ej: 1" />
+        </label>
 
-          <label class="text-sm">
-            <div class="mb-1 text-xs font-semibold">Email</div>
-            <input id="f_email" value="${client.email || ""}"
-              class="w-full rounded-xl border px-3 py-2" />
-          </label>
+        <label>
+          <div class="text-xs font-semibold">Título</div>
+          <input id="k_title" class="input" placeholder="Ej: Despido sin causa" />
+        </label>
 
-          <label class="text-sm">
-            <div class="mb-1 text-xs font-semibold">Teléfono</div>
-            <input id="f_phone" value="${client.phone || ""}"
-              class="w-full rounded-xl border px-3 py-2" />
-          </label>
+        <label>
+          <div class="text-xs font-semibold">Área</div>
+          <input id="k_area" class="input" placeholder="Laboral / Civil / Penal..." />
+        </label>
 
-          <label>
-           <div class="text-xs font-semibold">Número de DNI</div>
-           <input id="f_dni" value="${client.dni || ""}"
-           class="w-full rounded-xl border px-3 py-2" />
-          </label>
-        `
+        <label>
+          <div class="text-xs font-semibold">Estado</div>
+          <select id="k_status" class="input">
+            <option value="open">Abierto</option>
+            <option value="pending">Pendiente</option>
+            <option value="closed">Cerrado</option>
+            <option value="archived">Archivado</option>
+          </select>
+        </label>
+
+        <label>
+          <div class="text-xs font-semibold">Prioridad</div>
+          <select id="k_priority" class="input">
+            <option value="normal">Normal</option>
+            <option value="low">Baja</option>
+            <option value="high">Alta</option>
+            <option value="urgent">Urgente</option>
+          </select>
+        </label>
+
+        <label class="sm:col-span-2">
+          <div class="text-xs font-semibold">Descripción (opcional)</div>
+          <textarea id="k_desc" class="input" rows="3" placeholder="Detalle del caso..."></textarea>
+        </label>
+      `,
       });
 
-      // Guardar
       document.getElementById("modalForm").onsubmit = async (ev) => {
         ev.preventDefault();
 
         const payload = {
-          full_name: document.getElementById("f_name").value,
-          email: document.getElementById("f_email").value,
-          phone: document.getElementById("f_phone").value,
+          client_id: Number(document.getElementById("k_client").value),
+          title: document.getElementById("k_title").value,
+          area: document.getElementById("k_area").value || null,
+          status: document.getElementById("k_status").value,
+          priority: document.getElementById("k_priority").value,
+          description: document.getElementById("k_desc").value || null,
         };
 
-        await apiFetch(`/api/clients/${id}`, {
-          method: "PUT",
-          body: JSON.stringify(payload),
-        });
+        try {
+          await apiFetch("/api/cases", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
 
-        AdminUI.toast("Cliente actualizado", "success");
-        AdminUI.closeModal();
-        renderCurrentView();
+          AdminUI.toast("Caso creado", "success");
+          AdminUI.closeModal();
+          renderCurrentView();
+        } catch (err) {
+          AdminUI.toast(err.message || "Error al crear caso", "error");
+        }
       };
 
-      // Eliminar
-      document.getElementById("btnModalDelete").onclick = async () => {
-        if (!confirm("¿Eliminar cliente?")) return;
-
-        await apiFetch(`/api/clients/${id}`, {
-          method: "DELETE",
-        });
-
-        AdminUI.toast("Cliente eliminado", "success");
-        AdminUI.closeModal();
-        renderCurrentView();
-      };
-
-    } catch (err) {
-      AdminUI.toast("Error al editar cliente", "error");
-      console.error(err);
-    }
-
-    return;
-  }
-
-  // ============================
-  // TURNOS (lo tuyo actual)
-  // ============================
-  if (type === "appointment") {
-    try {
-      if (action === "confirm") {
-        await apiFetch(`/api/appointments/${id}/confirm`, { method: "POST" });
-        AdminUI.toast("Turno confirmado", "success");
-        await renderCurrentView();
-        return;
-      }
-
-      if (action === "done") {
-        await apiFetch(`/api/appointments/${id}/mark-done`, { method: "POST" });
-        AdminUI.toast("Turno marcado como hecho", "success");
-        await renderCurrentView();
-        return;
-      }
-
-
-      if (action === "cancel") {
-        await apiFetch(`/api/appointments/${id}/cancel`, { method: "POST" });
-        AdminUI.toast("Turno cancelado", "success");
-        await renderCurrentView();
-        return;
-      }
-    } catch (err) {
-      AdminUI.toast("Error en turno", "error");
-    }
-  }
-
-  // fallback
-  AdminUI.toast(`Acción no implementada: ${action}`, "info");
-});
-document.addEventListener("change", async (e) => {
-  const sel = e.target.closest("select[data-action]");
-  if (!sel) return;
-
-  const action = sel.dataset.action;
-  const id = sel.dataset.id;
-  const value = sel.value;
-
-  try {
-    if (action === "client-status") {
-      await apiFetch(`/api/clients/${id}/status`, {
-        method: "PUT",
-        body: JSON.stringify({ status: value }),
-      });
-      AdminUI.toast("Estado de cliente actualizado", "success");
       return;
     }
 
-    if (action === "case-status") {
-      await apiFetch(`/api/cases/${id}/status`, {
-        method: "PUT",
-        body: JSON.stringify({ status: value }),
-      });
-      AdminUI.toast("Estado de caso actualizado", "success");
-      return;
-    }
-
-    if (action === "case-priority") {
-      await apiFetch(`/api/cases/${id}/priority`, {
-        method: "PUT",
-        body: JSON.stringify({ priority: value }),
-      });
-      AdminUI.toast("Prioridad actualizada", "success");
-      return;
-    }
-  } catch (err) {
-    console.error(err);
-    AdminUI.toast(err.message || "Error al actualizar", "error");
-    // refresco por si quedó inconsistente
-    renderCurrentView();
-  }
-});
+    // -------------------------
+    // Default
+    // -------------------------
+    AdminUI.toast("Usá + Nuevo desde Clientes, Turnos o Casos", "info");
+  });
 
 
-
-// =========================
-// Boot
-// =========================
-(async function boot() {
-  await loadMe();
-  await loadSystemStatus();
-  await renderCurrentView();
+  // =========================
+  // Boot (ADENTRO del IIFE)
+  // =========================
+  (async function boot() {
+    await loadMe();
+    await loadSystemStatus();
+    await renderCurrentView();
+  })();
 })();
-

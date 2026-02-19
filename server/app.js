@@ -112,7 +112,7 @@ app.use(express.static(PUBLIC_DIR, {
 // API
 // =========================
 app.use("/api/admin", adminRoutes);
-app.use("/api/lawyers", lawyersRoutes);
+app.use("/api/lawyers", require("./routes/lawyers"));
 app.use("/api/clients", clientsRoutes);
 app.use("/api/cases", casesRoutes);
 app.use("/api/documents", documentsRoutes);
