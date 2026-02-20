@@ -49,28 +49,54 @@
 
     .flip-container {
       perspective: 1200px;
+      -webkit-perspective: 1200px;
+      position: relative;
     }
 
     .flipper {
       position: relative;
       transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
       transition: transform 700ms cubic-bezier(.2, .8, .2, 1);
+      will-change: transform;
     }
 
     .flip-container.flipped .flipper {
       transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
     }
 
-    .flip-face {
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-      transform-style: preserve-3d;
-    }
-
+    /* IMPORTANTE: ambas caras superpuestas */
+    .flip-face,
     .flip-back {
       position: absolute;
       inset: 0;
-      transform: rotateY(180deg);
+      width: 100%;
+    }
+
+    .flip-face {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+
+      transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
+    }
+
+    .flip-back {
+      transform: rotateY(180deg) translate3d(0, 0, 1px);
+      -webkit-transform: rotateY(180deg) translate3d(0, 0, 1px);
+    }
+
+    /* Para que el contenedor tenga altura (si no, al ser absolute colapsa) */
+    .flip-container {
+      min-height: 520px;
+    }
+
+    /* ajustá a ojo según tu form */
+    @media (max-width: 420px) {
+      .flip-container {
+        min-height: 560px;
+      }
     }
 
     /* Reduce motion */
@@ -489,6 +515,26 @@
         setRegMsg("Error de conexión con el servidor.", "error");
       }
     });
+  </script>
+  <script>
+    function syncFlipHeight() {
+      const card = document.getElementById("flipCard");
+      const flipper = card.querySelector(".flipper");
+      const faces = flipper.querySelectorAll(".flip-face");
+      // cara visible según estado
+      const visible = card.classList.contains("flipped") ? faces[1] : faces[0];
+      card.style.height = visible.offsetHeight + "px";
+    }
+
+    // al cargar y al flippear
+    window.addEventListener("load", syncFlipHeight);
+    window.addEventListener("resize", syncFlipHeight);
+
+    const _toggleFlip = window.toggleFlip;
+    window.toggleFlip = function () {
+      _toggleFlip();
+      requestAnimationFrame(syncFlipHeight);
+    };
   </script>
 </body>
 
